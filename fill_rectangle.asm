@@ -1,12 +1,18 @@
+; used to populate attribute memory from buffer via _copy_attr_buffer
 VIDEOATT: equ $5800 ; address of attribute RAM
 VIDEOATT_L: equ $0300 ; length of attribute RAM
 ATTR_BUFF: equ $F800 ; hard coded attribute buffer address
+; used to populate only the 2nd half of attribute memory via _copy_attr_buffer_half
+VIDEOATT_HALF: equ $5980 ; address of 2nd half or attribute RAM
+VIDEOATT_L_HALF: equ $0180 ; half length of attribute RAM
+ATTR_BUFF_HALF: equ $F980 ; hard coded attribute buffer 2nd half
 
 SECTION code_user
 
 PUBLIC _fill_rectangle_char
 PUBLIC _fill_rectangle_attr
 PUBLIC _copy_attr_buffer
+PUBLIC _copy_attr_buffer_half
 
 ;----------
 ; _fill_rectangle_char
@@ -146,7 +152,19 @@ _fill_rectangle_attr_loop2:
 _copy_attr_buffer:
             ld de, VIDEOATT ; target is attribute memory
             ld hl, ATTR_BUFF ; source is attribute buffer
-            ld bc, VIDEOATT_L ; length is size of attribute memory minus last row to hide dodgy row
+            ld bc, VIDEOATT_L ; length is size of attribute memory
+            ldir ; copy
+            ret
+
+;----------
+; copy_attr_buffer_half
+; copy 2nd half of attribute buffer into 2nd half of attribute memory (opt)
+; alters: hl, de, bc
+;----------
+_copy_attr_buffer_half:
+            ld de, VIDEOATT_HALF ; target is attribute memory
+            ld hl, ATTR_BUFF_HALF ; source is attribute buffer
+            ld bc, VIDEOATT_L_HALF ; length is size of attribute memory
             ldir ; copy
             ret
 
@@ -186,3 +204,11 @@ defb 231,189,219,102,102,219,189,231 ; X
 defb 199,109,187,214,108,40,40,56 ; Y
 defb 255,129,251,54,108,223,129,255 ; Z
 defb 255,255,255,255,0,0,0,0 ; [ - horizontal stripe
+defb %11110000
+defb %11110000
+defb %11110000
+defb %11110000
+defb %11110000
+defb %11110000
+defb %11110000
+defb %11110000 ; \ - vertical stripe
