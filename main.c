@@ -26,11 +26,11 @@ extern void copy_attr_buffer_half() __z88dk_callee; // copy 2nd half of attribut
 #define MAP_WIDTH 64
 #define MAP_HEIGHT 64 // can opt for 2^x values
 #define MAP_X_OFFSET 3
-#define MAP_Y_OFFSET 5
+#define MAP_Y_OFFSET 7
 #define MAP_X_START 11
 #define MAP_X_END 15
-#define MAP_Y_START 3
-#define MAP_Y_END 12
+#define MAP_Y_START 1
+#define MAP_Y_END 14 // this cannot be 15 as breaks draw_row
 
 unsigned char player_x;
 unsigned char player_y;
@@ -124,7 +124,7 @@ void draw_map_vertical(unsigned char frame, unsigned char sub_frame, unsigned ch
     }
 
     fill_rectangle_attr(17, 16, 2, 2, 7, 7); // player square
-    fill_rectangle_attr(23, 6, 1, 20, 1, 7); // hide bottom row
+    fill_rectangle_attr(23, 0, 1, 32, 1, 7); // hide bottom row
     copy_attr_buffer_half();
 }
 
@@ -142,7 +142,7 @@ void draw_map_horizontal(unsigned char frame, unsigned char sub_frame, unsigned 
     }
 
     fill_rectangle_attr(17, 16, 2, 2, 7, 7); // player square
-    fill_rectangle_attr(23, 6, 1, 20, 1, 7); // hide bottom row
+    fill_rectangle_attr(23, 0, 1, 32, 1, 7); // hide bottom row
     copy_attr_buffer_half();
 }
 
@@ -195,25 +195,25 @@ void loop_around_map() // loop around map with 1 tile between player and edge
     player_y = 1;
     draw_map_vertical(0, 0, player_x, player_y);
     // forward
-    fill_rectangle_char(12, 6, 11, 20, "["); // horizontal stripe
+    fill_rectangle_char(12, 2, 11, 28, "["); // horizontal stripe
     for (player_x = MAP_HEIGHT - 2; player_x > 1;)
     {
         move_forward();
     }    
     // right
-    fill_rectangle_char(12, 6, 11, 20, "\\"); // vertical stripe
+    fill_rectangle_char(12, 2, 11, 28, "\\"); // vertical stripe
     for (player_y = 1; player_y < MAP_WIDTH - 2;)
     {
         move_right();
     }
     // backward
-    fill_rectangle_char(12, 6, 11, 20, "["); // horizontal stripe
+    fill_rectangle_char(12, 2, 11, 28, "["); // horizontal stripe
     for (player_x = 1; player_x < MAP_HEIGHT - 2;)
     {
         move_backward();
     }
     // left
-    fill_rectangle_char(12, 6, 11, 20, "\\"); // vertical stripe
+    fill_rectangle_char(12, 2, 11, 28, "\\"); // vertical stripe
     for (player_y = MAP_WIDTH - 2; player_y > 1;)
     {
         move_left();
