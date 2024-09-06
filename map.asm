@@ -1,5 +1,4 @@
-MAP_HEIGHT: equ $40 ; 64
-MAP_WIDTH: equ $40 ; 64
+MAP_SIZE: equ $40 ; 64
 
 SECTION code_user
 
@@ -64,4 +63,4 @@ load_cell_location:
 
 SECTION bss_user
 
-_map: ds MAP_HEIGHT*MAP_WIDTH
+_map: ds MAP_SIZE*MAP_SIZE

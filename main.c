@@ -22,9 +22,9 @@ extern void fill_rectangle_attr(unsigned char x, unsigned char y, unsigned char 
 extern void copy_attr_buffer() __z88dk_callee; // copy attribute buffer into attribute memory
 
 #define ATTR_BUFF 0xF800 // hard coded attribute buffer address
-#define MAP_SIZE 64
-#define MAP_ROWS 10
-#define MAP_OFFSET (MAP_ROWS / 2)
+#define MAP_SIZE 64 // 64x64 map
+#define VISIBLE_BLOCKS 11 // 11x11 displayed
+#define MAP_OFFSET 5 // offset to centralise display
 
 unsigned char player_x;
 unsigned char player_y;
@@ -52,7 +52,7 @@ void draw_row_vertical(signed char x, signed char x2, unsigned char y)
     // tile attribute is half x, half x2, split by ink/paper using udg $83    
     for (unsigned char ty = 0; ty <= 15; ty++)
     {
-        if (ty <= MAP_ROWS)
+        if (ty < VISIBLE_BLOCKS)
         {            
             unsigned char tile = get_tile(x, y);
             unsigned char tile2 = x == x2 ? tile : get_tile(x2, y);
@@ -73,7 +73,7 @@ void draw_row_horizontal(signed char x, unsigned char y, unsigned char y2, unsig
 {      
     for (unsigned char ty = 0; ty <= 15; ty++)
     {                
-        if (ty <= MAP_ROWS)
+        if (ty < VISIBLE_BLOCKS)
         {
             unsigned char tile = get_tile(x, y);
             unsigned char tile2 = y == y2 ? tile : get_tile(x, y2);
@@ -85,7 +85,7 @@ void draw_row_horizontal(signed char x, unsigned char y, unsigned char y2, unsig
         }
         else
         {
-            if (ty == (MAP_ROWS + frame))
+            if (frame == 1 && ty == VISIBLE_BLOCKS)
             {
                 unsigned char tile = get_tile(x, y);
                 *attr_address++ = tile >> 3 | tile;
@@ -110,7 +110,7 @@ void draw_map_vertical(unsigned char frame, unsigned char sub_frame, unsigned ch
         x++;
     }
 
-    while (x <= px - MAP_OFFSET + MAP_ROWS)
+    while (x <= px + MAP_OFFSET)
     {
         draw_row_vertical(x - sub_frame, x, y);
         draw_row_vertical(x, x, y);
@@ -128,7 +128,7 @@ void draw_map_horizontal(unsigned char frame, unsigned char sub_frame, unsigned 
     signed char x = px - MAP_OFFSET; // starting row (could be negative)
     unsigned char y = py - MAP_OFFSET - frame;
 
-    while (x <= px - MAP_OFFSET + MAP_ROWS)
+    while (x <= px + MAP_OFFSET)
     {
         draw_row_horizontal(x, y - sub_frame, y, frame);
         draw_row_horizontal(x, y - sub_frame, y, frame);
