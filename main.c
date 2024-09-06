@@ -22,14 +22,9 @@ extern void fill_rectangle_attr(unsigned char x, unsigned char y, unsigned char 
 extern void copy_attr_buffer() __z88dk_callee; // copy attribute buffer into attribute memory
 
 #define ATTR_BUFF 0xF800 // hard coded attribute buffer address
-#define MAP_WIDTH 64
-#define MAP_HEIGHT 64 // can opt for 2^x values
-#define MAP_X_OFFSET 5
-#define MAP_Y_OFFSET 5
-#define MAP_X_START 0
-#define MAP_X_ROWS 10
-#define MAP_Y_START 0
-#define MAP_Y_END 10 // this cannot be 15 as breaks draw_row
+#define MAP_SIZE 64
+#define MAP_ROWS 10
+#define MAP_OFFSET (MAP_ROWS / 2)
 
 unsigned char player_x;
 unsigned char player_y;
@@ -39,14 +34,14 @@ unsigned char *attr_address;
 
 void init_map()
 {
-    for (unsigned char x = 0; x < MAP_HEIGHT; x++)
-        for (unsigned char y = 0; y < MAP_WIDTH; y++)
+    for (unsigned char x = 0; x < MAP_SIZE; x++)
+        for (unsigned char y = 0; y < MAP_SIZE; y++)
             set_map_tile(x, y, (rand() % 7) << 3);
 }
 
 unsigned char get_tile(unsigned char x, unsigned char y)
 {
-    if (x < MAP_HEIGHT && y < MAP_WIDTH)
+    if (x < MAP_SIZE && y < MAP_SIZE)
         return get_map_tile(x, y);
 
     return 0;
@@ -57,7 +52,7 @@ void draw_row_vertical(signed char x, signed char x2, unsigned char y)
     // tile attribute is half x, half x2, split by ink/paper using udg $83    
     for (unsigned char ty = 0; ty <= 15; ty++)
     {
-        if (ty >= MAP_Y_START && ty <= MAP_Y_END)
+        if (ty <= MAP_ROWS)
         {            
             unsigned char tile = get_tile(x, y);
             unsigned char tile2 = x == x2 ? tile : get_tile(x2, y);
@@ -78,11 +73,11 @@ void draw_row_horizontal(signed char x, unsigned char y, unsigned char y2, unsig
 {      
     for (unsigned char ty = 0; ty <= 15; ty++)
     {                
-        if (ty >= MAP_Y_START && ty <= MAP_Y_END)
+        if (ty <= MAP_ROWS)
         {
             unsigned char tile = get_tile(x, y);
             unsigned char tile2 = y == y2 ? tile : get_tile(x, y2);
-            if (frame == 0 || ty > MAP_Y_START)
+            if (frame == 0 || ty > 0)
             {
                 *attr_address++ = tile >> 3 | tile;
             }
@@ -90,7 +85,7 @@ void draw_row_horizontal(signed char x, unsigned char y, unsigned char y2, unsig
         }
         else
         {
-            if (ty == (MAP_Y_END + frame))
+            if (ty == (MAP_ROWS + frame))
             {
                 unsigned char tile = get_tile(x, y);
                 *attr_address++ = tile >> 3 | tile;
@@ -106,8 +101,8 @@ void draw_row_horizontal(signed char x, unsigned char y, unsigned char y2, unsig
 void draw_map_vertical(unsigned char frame, unsigned char sub_frame, unsigned char px, unsigned char py)
 {    
     attr_address = start_attr_address; // reset shared attr_address
-    signed char x = px - MAP_X_OFFSET - frame; // starting row (could be negative)
-    unsigned char y = py - MAP_Y_OFFSET - MAP_Y_START;
+    signed char x = px - MAP_OFFSET - frame; // starting row (could be negative)
+    unsigned char y = py - MAP_OFFSET;
     if (frame == 1)
     {
         // draw top half row between frames
@@ -115,7 +110,7 @@ void draw_map_vertical(unsigned char frame, unsigned char sub_frame, unsigned ch
         x++;
     }
 
-    while (x <= px - MAP_X_OFFSET + MAP_X_ROWS)
+    while (x <= px - MAP_OFFSET + MAP_ROWS)
     {
         draw_row_vertical(x - sub_frame, x, y);
         draw_row_vertical(x, x, y);
@@ -130,10 +125,10 @@ void draw_map_vertical(unsigned char frame, unsigned char sub_frame, unsigned ch
 void draw_map_horizontal(unsigned char frame, unsigned char sub_frame, unsigned char px, unsigned char py)
 {
     attr_address = start_attr_address; // reset shared attr_address
-    signed char x = px - MAP_X_OFFSET; // starting row (could be negative)
-    unsigned char y = py - MAP_Y_OFFSET - MAP_Y_START - frame;
+    signed char x = px - MAP_OFFSET; // starting row (could be negative)
+    unsigned char y = py - MAP_OFFSET - frame;
 
-    while (x <= px - MAP_X_OFFSET + MAP_X_ROWS)
+    while (x <= px - MAP_OFFSET + MAP_ROWS)
     {
         draw_row_horizontal(x, y - sub_frame, y, frame);
         draw_row_horizontal(x, y - sub_frame, y, frame);
@@ -190,30 +185,30 @@ void move_right()
 void loop_around_map() // loop around map with 1 tile between player and edge
 {
     // intial position/map
-    player_x = MAP_HEIGHT - 2;
+    player_x = MAP_SIZE - 2;
     player_y = 1;
     draw_map_vertical(0, 0, player_x, player_y);
     // forward
     fill_rectangle_char(0, 0, 22, 22, "["); // horizontal stripe
-    for (player_x = MAP_HEIGHT - 2; player_x > 1;)
+    for (player_x = MAP_SIZE - 2; player_x > 1;)
     {
         move_forward();
     }    
     // right
     fill_rectangle_char(0, 0, 22, 22, "\\"); // vertical stripe
-    for (player_y = 1; player_y < MAP_WIDTH - 2;)
+    for (player_y = 1; player_y < MAP_SIZE - 2;)
     {
         move_right();
     }
     // backward
     fill_rectangle_char(0, 0, 22, 22, "["); // horizontal stripe
-    for (player_x = 1; player_x < MAP_HEIGHT - 2;)
+    for (player_x = 1; player_x < MAP_SIZE - 2;)
     {
         move_backward();
     }
     // left
     fill_rectangle_char(0, 0, 22, 22, "\\"); // vertical stripe
-    for (player_y = MAP_WIDTH - 2; player_y > 1;)
+    for (player_y = MAP_SIZE - 2; player_y > 1;)
     {
         move_left();
     }
@@ -222,7 +217,7 @@ void loop_around_map() // loop around map with 1 tile between player and edge
 void main()
 {       
     print_string("Initialising...");
-    start_attr_address = (unsigned char*)(ATTR_BUFF + (MAP_X_START * 32)); // start of map attribute memory
+    start_attr_address = (unsigned char*)(ATTR_BUFF); // start of map attribute memory
     init_map();    
     // try out some fill_rectangle stuff
     fill_rectangle_char(0, 0, 24, 32, background_pattern1); // repeating background pattern
