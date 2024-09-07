@@ -23,8 +23,10 @@ extern void copy_attr_buffer() __z88dk_callee; // copy attribute buffer into att
 
 #define ATTR_BUFF 0xF800 // hard coded attribute buffer address
 #define MAP_SIZE 64 // 64x64 map
-#define VISIBLE_BLOCKS 11 // 11x11 displayed
-#define MAP_OFFSET 5 // offset to centralise display
+#define VISIBLE_BLOCKS 11 // 11x11 displayed (must be odd number 3-11)
+#define VISIBLE_AREA (VISIBLE_BLOCKS * 2) // each block 2x2
+#define PLAYER_SQUARE (VISIBLE_BLOCKS - 1) // position of player on screen
+#define MAP_OFFSET (PLAYER_SQUARE / 2) // offset to centralise display
 
 unsigned char player_x;
 unsigned char player_y;
@@ -121,7 +123,7 @@ void draw_map_vertical(unsigned char frame, unsigned char sub_frame, unsigned ch
         x++;
     }
 
-    fill_rectangle_attr(10, 10, 2, 2, 7, 7); // player square
+    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, 7, 7); // player square
     copy_attr_buffer();
 }
 
@@ -138,7 +140,7 @@ void draw_map_horizontal(unsigned char frame, unsigned char sub_frame, unsigned 
         x++;
     }
 
-    fill_rectangle_attr(10, 10, 2, 2, 7, 7); // player square
+    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, 7, 7); // player square
     copy_attr_buffer();
 }
 
@@ -191,25 +193,25 @@ void loop_around_map() // loop around map with 1 tile between player and edge
     player_y = 1;
     draw_map_vertical(0, 0, player_x, player_y);
     // forward
-    fill_rectangle_char(0, 0, 22, 22, "["); // horizontal stripe
+    fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, "["); // horizontal stripe
     for (player_x = MAP_SIZE - 2; player_x > 1;)
     {
         move_forward();
     }    
     // right
-    fill_rectangle_char(0, 0, 22, 22, "\\"); // vertical stripe
+    fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, "\\"); // vertical stripe
     for (player_y = 1; player_y < MAP_SIZE - 2;)
     {
         move_right();
     }
     // backward
-    fill_rectangle_char(0, 0, 22, 22, "["); // horizontal stripe
+    fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, "["); // horizontal stripe
     for (player_x = 1; player_x < MAP_SIZE - 2;)
     {
         move_backward();
     }
     // left
-    fill_rectangle_char(0, 0, 22, 22, "\\"); // vertical stripe
+    fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, "\\"); // vertical stripe
     for (player_y = MAP_SIZE - 2; player_y > 1;)
     {
         move_left();
