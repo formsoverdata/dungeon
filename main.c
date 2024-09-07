@@ -110,15 +110,18 @@ void draw_map_vertical(unsigned char frame, unsigned char sub_frame, unsigned ch
         x++;
     }
 
-    while (x <= px + MAP_OFFSET)
+    signed char rows = px + MAP_OFFSET;
+    while (x <= rows)
     {
         draw_row_vertical(x - sub_frame, x, y);
-        draw_row_vertical(x, x, y);
+        if (frame == 0 || x < rows)
+        {
+            draw_row_vertical(x, x, y);
+        }
         x++;
     }
 
     fill_rectangle_attr(10, 10, 2, 2, 7, 7); // player square
-    fill_rectangle_attr(22, 0, 1, 32, 1, 7); // hide bottom row
     copy_attr_buffer();
 }
 
@@ -136,7 +139,6 @@ void draw_map_horizontal(unsigned char frame, unsigned char sub_frame, unsigned 
     }
 
     fill_rectangle_attr(10, 10, 2, 2, 7, 7); // player square
-    fill_rectangle_attr(22, 0, 1, 32, 1, 7); // hide bottom row
     copy_attr_buffer();
 }
 
