@@ -71,75 +71,103 @@ void draw_row_vertical(signed char x, signed char x2, unsigned char y)
     }
 }
 
-void draw_row_horizontal(signed char x, unsigned char y, unsigned char y2, unsigned char frame)
+void draw_row_horizontal(unsigned char frame_no, signed char x, unsigned char y)
 {      
     for (unsigned char ty = 0; ty <= 15; ty++)
-    {                
-        if (ty < VISIBLE_BLOCKS)
+    {       
+        unsigned char tile = get_tile(x, y);
+        unsigned char tile2 = tile;
+        switch (frame_no)
         {
-            unsigned char tile = get_tile(x, y);
-            unsigned char tile2 = y == y2 ? tile : get_tile(x, y2);
-            if (frame == 0 || ty > 0)
+            case 1:
+            case 3:
+                tile = get_tile(x, y - 1);
+                break;
+        } 
+        if (ty < VISIBLE_BLOCKS)
+        {            
+            if (frame_no == 0 || frame_no == 3 || ty > 0)
             {
+                // do not skip first block
                 *attr_address++ = tile >> 3 | tile;
             }
             *attr_address++ = tile >> 3 | tile2;
         }
         else
         {
-            if (frame == 1 && ty == VISIBLE_BLOCKS)
+            if (ty == VISIBLE_BLOCKS)
             {
-                unsigned char tile = get_tile(x, y);
-                *attr_address++ = tile >> 3 | tile;
+                switch (frame_no)
+                {
+                    case 1:
+                    case 2:
+                        // catch up last block (first skipped)
+                        *attr_address++ = tile >> 3 | tile;
+                        break;
+                }
+                
             }
             attr_address++;
             attr_address++;
         }
         y++;
-        y2++;        
     }
 }
 
-void draw_map_vertical(unsigned char frame, unsigned char sub_frame, unsigned char px, unsigned char py)
+void draw_map_vertical(unsigned char frame_no, unsigned char px, unsigned char py)
 {    
     attr_address = start_attr_address; // reset shared attr_address
-    signed char x = px - MAP_OFFSET - frame; // starting row (could be negative)
+    signed char x = px - MAP_OFFSET; // starting row (could be negative)
     unsigned char y = py - MAP_OFFSET;
-    if (frame == 1)
+    unsigned char sub_frame = 0;
+    switch (frame_no)
     {
-        // draw top half row between frames
-        draw_row_vertical(x, x, y);
-        x++;
+        case 1:
+            sub_frame = 1;
+            break;
+        case 2:
+            draw_row_vertical(x - 1, x - 1, y);
+            break;
+        case 3:
+            sub_frame = 1;
+            draw_row_vertical(x - 1, x - 1, y);
+            break;
+
     }
 
     signed char rows = px + MAP_OFFSET;
-    while (x <= rows)
+    while (x < rows)
     {
         draw_row_vertical(x - sub_frame, x, y);
-        if (frame == 0 || x < rows)
-        {
-            draw_row_vertical(x, x, y);
-        }
+        draw_row_vertical(x, x, y);
         x++;
+    }
+    draw_row_vertical(x - sub_frame, x, y);
+    if (frame_no < 2)
+    {
+        // catch up row
+        draw_row_vertical(x, x, y);
     }
 
     fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, 7, 7); // player square
     copy_attr_buffer();
 }
 
-void draw_map_horizontal(unsigned char frame, unsigned char sub_frame, unsigned char px, unsigned char py)
+void draw_map_horizontal(unsigned char frame_no, unsigned char px, unsigned char py)
 {
     attr_address = start_attr_address; // reset shared attr_address
     signed char x = px - MAP_OFFSET; // starting row (could be negative)
-    unsigned char y = py - MAP_OFFSET - frame;
-
+    unsigned char y = py - MAP_OFFSET;
+    if (frame_no == 2)
+    {
+        y--;
+    }
     while (x <= px + MAP_OFFSET)
     {
-        draw_row_horizontal(x, y - sub_frame, y, frame);
-        draw_row_horizontal(x, y - sub_frame, y, frame);
+        draw_row_horizontal(frame_no, x, y);
+        draw_row_horizontal(frame_no, x, y);
         x++;
     }
-
     fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, 7, 7); // player square
     copy_attr_buffer();
 }
@@ -149,20 +177,20 @@ void move_forward()
     unsigned char prev_x = player_x;
     player_x--;
     // animate forward
-    draw_map_vertical(0, 1, prev_x, player_y); 
-    draw_map_vertical(1, 0, prev_x, player_y);
-    draw_map_vertical(1, 1, prev_x, player_y);
-    draw_map_vertical(0, 0, player_x, player_y); // final position
+    draw_map_vertical(1, prev_x, player_y); 
+    draw_map_vertical(2, prev_x, player_y);
+    draw_map_vertical(3, prev_x, player_y);
+    draw_map_vertical(0, player_x, player_y); // final position
 }
 
 void move_backward()
 {    
     player_x++;
     // animate backward
-    draw_map_vertical(1, 1, player_x, player_y);
-    draw_map_vertical(1, 0, player_x, player_y);
-    draw_map_vertical(0, 1, player_x, player_y); 
-    draw_map_vertical(0, 0, player_x, player_y); // final position
+    draw_map_vertical(3, player_x, player_y);
+    draw_map_vertical(2, player_x, player_y);
+    draw_map_vertical(1, player_x, player_y); 
+    draw_map_vertical(0, player_x, player_y); // final position
 }
 
 void move_left()
@@ -170,20 +198,20 @@ void move_left()
     unsigned char prev_y = player_y;
     player_y--;
     // animate left
-    draw_map_horizontal(1, 1, player_x, prev_y + 1); // TODO - why + 1?
-    draw_map_horizontal(1, 0, player_x, prev_y );
-    draw_map_horizontal(0, 1, player_x, prev_y); 
-    draw_map_horizontal(0, 0, player_x, player_y); // final position
+    draw_map_horizontal(1, player_x, prev_y);
+    draw_map_horizontal(2, player_x, prev_y );
+    draw_map_horizontal(3, player_x, prev_y); 
+    draw_map_horizontal(0, player_x, player_y); // final position
 }
 
 void move_right()
 {    
     player_y++;
     // animate right
-    draw_map_horizontal(0, 1, player_x, player_y);
-    draw_map_horizontal(1, 0, player_x, player_y);
-    draw_map_horizontal(1, 1, player_x, player_y + 1); // TODO - why + 1?
-    draw_map_horizontal(0, 0, player_x, player_y); // final position
+    draw_map_horizontal(3, player_x, player_y);
+    draw_map_horizontal(2, player_x, player_y);
+    draw_map_horizontal(1, player_x, player_y);
+    draw_map_horizontal(0, player_x, player_y); // final position
 }
 
 void loop_around_map() // loop around map with 1 tile between player and edge
@@ -191,7 +219,7 @@ void loop_around_map() // loop around map with 1 tile between player and edge
     // intial position/map
     player_x = MAP_SIZE - 2;
     player_y = 1;
-    draw_map_vertical(0, 0, player_x, player_y);
+    draw_map_vertical(0, player_x, player_y);
     // forward
     fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, "["); // horizontal stripe
     for (player_x = MAP_SIZE - 2; player_x > 1;)
