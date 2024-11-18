@@ -23,23 +23,20 @@ unsigned char get_tile(unsigned char x, unsigned char y)
 
 void draw_row_vertical(signed char x, signed char x2, unsigned char y)
 {
-    // tile attribute is half x, half x2, split by ink/paper using udg $83    
-    for (unsigned char ty = 0; ty <= 15; ty++)
+    unsigned char i = VISIBLE_BLOCKS;
+    for (; i > 0; i--)
     {
-        if (ty < VISIBLE_BLOCKS)
-        {            
-            unsigned char tile = get_tile(x, y);
-            unsigned char tile2 = x == x2 ? tile : get_tile(x2, y);
-            tile = tile >> 3 | tile2;
-            *attr_address++ = tile;
-            *attr_address++ = tile;
-        }
-        else
-        {
-            attr_address++;
-            attr_address++;
-        }
+        unsigned char tile = get_tile(x, y);
+        unsigned char tile2 = x == x2 ? tile : get_tile(x2, y);
+        tile = tile >> 3 | tile2;
+        *attr_address++ = tile;
+        *attr_address++ = tile;
         y++;
+    }
+    for (i = 15; i >= VISIBLE_BLOCKS; i--)
+    {
+        attr_address++;
+        attr_address++;
     }
 }
 
