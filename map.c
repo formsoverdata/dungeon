@@ -41,9 +41,9 @@ void draw_row_vertical(signed char x, signed char x2, unsigned char y)
 }
 
 void draw_row_horizontal(signed char x, unsigned char y)
-{      
-    for (unsigned char ty = 0; ty <= 15; ty++)
-    {       
+{    
+    for (unsigned char i = VISIBLE_BLOCKS; i < 255; i--)
+    {
         unsigned char tile = get_tile(x, y);
         unsigned char tile2 = tile;
         switch (frame_no)
@@ -52,34 +52,36 @@ void draw_row_horizontal(signed char x, unsigned char y)
             case 3:
                 tile = get_tile(x, y - 1);
                 break;
-        } 
-        if (ty < VISIBLE_BLOCKS)
-        {            
-            if (frame_no == 0 || frame_no == 3 || ty > 0)
+        }
+
+        if (i == 0)
+        {
+            switch (frame_no)
+            {
+                case 1:
+                case 2:
+                    // catch up last block (first skipped)
+                    *attr_address++ = tile >> 3 | tile;
+                    break;
+            }
+            attr_address++;
+            attr_address++;
+        }
+        else
+        {
+            if (frame_no == 0 || frame_no == 3 || i < VISIBLE_BLOCKS)
             {
                 // do not skip first block
                 *attr_address++ = tile >> 3 | tile;
             }
             *attr_address++ = tile >> 3 | tile2;
+            y++;
         }
-        else
-        {
-            if (ty == VISIBLE_BLOCKS)
-            {
-                switch (frame_no)
-                {
-                    case 1:
-                    case 2:
-                        // catch up last block (first skipped)
-                        *attr_address++ = tile >> 3 | tile;
-                        break;
-                }
-                
-            }
-            attr_address++;
-            attr_address++;
-        }
-        y++;
+    }
+    for (unsigned char i = 15; i > VISIBLE_BLOCKS; i--)
+    {        
+        attr_address++;
+        attr_address++;
     }
 }
 
@@ -105,11 +107,10 @@ void draw_map_vertical(void)
     }
 
     signed char rows = player_x + MAP_OFFSET;
-    while (x < rows)
+    for (; x < rows; x++)
     {
         draw_row_vertical(x - sub_frame, x, y);
         draw_row_vertical(x, x, y);
-        x++;
     }
     draw_row_vertical(x - sub_frame, x, y);
     if (frame_no < 2)
@@ -124,18 +125,16 @@ void draw_map_vertical(void)
 
 void draw_map_horizontal(void)
 {
-    attr_address = start_attr_address; // reset shared attr_address
-    signed char x = player_x - MAP_OFFSET; // starting row (could be negative)
+    attr_address = start_attr_address; // reset shared attr_address    
     unsigned char y = player_y - MAP_OFFSET;
     if (frame_no == 2)
     {
         y--;
     }
-    while (x <= player_x + MAP_OFFSET)
+    for (signed char x = player_x - MAP_OFFSET; x <= player_x + MAP_OFFSET; x++)
     {
         draw_row_horizontal(x, y);
         draw_row_horizontal(x, y);
-        x++;
     }
     fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, 7, 7); // player square
     copy_attr_buffer();
@@ -144,9 +143,13 @@ void draw_map_horizontal(void)
 void init_map(void)
 {
     start_attr_address = (unsigned char*)(ATTR_BUFF); // start of map attribute memory
-    for (unsigned char x = 0; x < MAP_SIZE; x++)
-        for (unsigned char y = 0; y < MAP_SIZE; y++)
+    for (unsigned char x = MAP_SIZE - 1; x < 255; x--)
+    {
+        for (unsigned char y = MAP_SIZE - 1; y < 255 ; y--)
+        {
             set_map_tile(x, y, (rand() % 7) << 3);
+        }
+    }
 }
 
 void move_forward(void)
