@@ -1,4 +1,6 @@
 fill_rectangle.asm
 screen.asm
 map.asm
+globals.c
+map.c
 main.c
