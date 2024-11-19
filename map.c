@@ -13,10 +13,12 @@ unsigned char *start_attr_address;
 unsigned char *attr_address;
 unsigned char frame_no;
 
-unsigned char get_tile(unsigned char x, unsigned char y)
+static inline unsigned char get_tile(unsigned char x, unsigned char y)
 {
     if (x < MAP_SIZE && y < MAP_SIZE)
+    {
         return get_map_tile(x, y);
+    }
 
     return 0;
 }
@@ -87,27 +89,26 @@ void draw_row_horizontal(signed char x, unsigned char y)
 
 void draw_map_vertical(void)
 {    
-    attr_address = start_attr_address; // reset shared attr_address
-    signed char x = player_x - MAP_OFFSET; // starting row (could be negative)
-    unsigned char y = player_y - MAP_OFFSET;
+    attr_address = start_attr_address; // reset shared attr_address    
     unsigned char sub_frame = 0;
     switch (frame_no)
     {
         case 1:
-            sub_frame = 1;
-            break;
-        case 2:
-            draw_row_vertical(x - 1, x - 1, y);
-            break;
         case 3:
-            sub_frame = 1;
-            draw_row_vertical(x - 1, x - 1, y);
+            sub_frame++;
             break;
-
     }
-
+    signed char x = player_x - MAP_OFFSET - 1; // starting row (could be negative)
+    unsigned char y = player_y - MAP_OFFSET;
+    switch (frame_no)
+    {
+        case 2:
+        case 3:
+            draw_row_vertical(x, x, y);
+            break;
+    }
     signed char rows = player_x + MAP_OFFSET;
-    for (; x < rows; x++)
+    for (x = x + 1; x < rows; x++)
     {
         draw_row_vertical(x - sub_frame, x, y);
         draw_row_vertical(x, x, y);
