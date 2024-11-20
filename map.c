@@ -7,6 +7,7 @@ extern void set_map_tile(unsigned char x, unsigned char y, unsigned int tile)  _
 // imported from fill_rectangle.asm
 extern void fill_rectangle_char(unsigned char x, unsigned char y, unsigned char height, unsigned char width, unsigned char *c) __z88dk_callee;
 extern void fill_rectangle_attr(unsigned char x, unsigned char y, unsigned char height, unsigned char width, unsigned char ink, unsigned char paper) __z88dk_callee;
+extern void bright_rectangle_attr(unsigned char x, unsigned char y, unsigned char height, unsigned char width) __z88dk_callee;
 extern void copy_attr_buffer(void) __z88dk_callee; // copy attribute buffer into attribute memory
 
 unsigned char *start_attr_address;
@@ -120,7 +121,7 @@ void draw_map_vertical(void)
         draw_row_vertical(x, x, y);
     }
 
-    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, 7, 7); // player square
+    bright_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2); // player square
     copy_attr_buffer();
 }
 
@@ -137,7 +138,7 @@ void draw_map_horizontal(void)
         draw_row_horizontal(x, y);
         draw_row_horizontal(x, y);
     }
-    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, 7, 7); // player square
+    bright_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2); // player square
     copy_attr_buffer();
 }
 
