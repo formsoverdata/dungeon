@@ -6,6 +6,7 @@ SECTION code_user
 
 PUBLIC _fill_rectangle_char
 PUBLIC _fill_rectangle_attr
+PUBLIC _bright_rectangle_attr
 PUBLIC _copy_attr_buffer
 
 ;----------
@@ -79,6 +80,30 @@ _fill_rectangle_char_loop3:
             djnz _fill_rectangle_char_loop1  
             ret       
 
+
+;----------
+; BEGIN - get_attr_address - adapted from a routine by Jonathan Cauldwell
+; inputs: d = y, e = x
+; outputs: hl = location of attribute (buffer) address
+;----------
+get_attr_address:
+            ld bc, ATTR_BUFF
+            ld a,e
+            rrca
+            rrca
+            rrca
+            ld l,a
+            and $03            
+            add a, b ; add hi byte of ATT_BUFF address
+            ld h,a
+            ld a,l
+            and $e0
+            ld l,a
+            ld a,d
+            add a, l
+            ld l,a
+            ret
+
 ;----------
 ; _fill_rectangle_attr
 ; inputs: d = y, e = x, h = width, l = height, i = paper, x = ink
@@ -97,27 +122,7 @@ _fill_rectangle_attr_loop1:
             push bc ; store counter 1
             ld b, h ; set counter 2 to width                        
             push bc ; store counter 2
-            ;----------
-            ; BEGIN - get_attr_address (inline) - adapted from a routine by Jonathan Cauldwell
-            ; inputs: d = y, e = x
-            ; outputs: hl = location of attribute (buffer) address
-            ;----------
-            ld bc, ATTR_BUFF
-            ld a,e
-            rrca
-            rrca
-            rrca
-            ld l,a
-            and $03            
-            add a, b ; add hi byte of ATT_BUFF address
-            ld h,a
-            ld a,l
-            and $e0
-            ld l,a
-            ld a,d
-            add a, l
-            ld l,a
-            ; END
+            call get_attr_address
             pop bc ; retrieve counter 2
 _fill_rectangle_attr_loop2:
             push bc ; store counter 2
@@ -136,6 +141,38 @@ _fill_rectangle_attr_loop2:
             pop hl ; retrieve width/height
             inc e ; increase x
             djnz _fill_rectangle_attr_loop1  
+            ret
+
+;----------
+; _bright_rectangle_attr
+; inputs: d = y, e = x, h = width, l = height
+;----------
+_bright_rectangle_attr:
+            pop bc ; ix = ret address
+            pop de ; d = y, e = x
+            pop hl ; h = width, l = height
+            push bc ; ret address back on stack
+            ld b, l ; set counter 1 to height
+            ld c, d ; store initial y in c
+_bright_rectangle_attr_loop1:
+            ld d, c ; retrieve initial y
+            push hl ; store width/height
+            push bc ; store counter 1
+            ld b, h ; set counter 2 to width                        
+            push bc ; store counter 2
+            call get_attr_address
+            pop bc ; retrieve counter 2
+_bright_rectangle_attr_loop2:
+            ld a, (hl)
+            or %01000000
+            ld (hl), a ; store in location
+            inc hl ; go to next location
+            inc d ; increase y
+            djnz _bright_rectangle_attr_loop2                         
+            pop bc ; retrieve counter 1
+            pop hl ; retrieve width/height
+            inc e ; increase x
+            djnz _bright_rectangle_attr_loop1  
             ret
 
 ;----------
