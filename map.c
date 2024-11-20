@@ -18,10 +18,28 @@ static inline unsigned char get_tile(unsigned char x, unsigned char y)
 {
     if (x < MAP_SIZE && y < MAP_SIZE)
     {
-        return get_map_tile(x, y);
+        unsigned char tile = get_map_tile(x, y);
+        if (tile & 0b00000001 == 0b00000001) // has tile been seen
+        {
+            return tile & 0b00111000; // return colour portion
+        }
     }
 
     return 0;
+}
+
+void draw_player(void)
+{
+    // mark area around player as seen
+    for (unsigned char x = player_x + 2; x >= player_x - 2 && x < 255; x--)
+    {
+        for (unsigned char y = player_y + 2; y >= player_y - 2 && y < 255; y--)
+        {
+            set_map_tile(x, y, get_map_tile(x, y) | 0b00000001);
+        }
+    }
+    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, 7, 7); // player square
+    bright_rectangle_attr(PLAYER_SQUARE - 2, PLAYER_SQUARE - 2, 6, 6); // player square bright
 }
 
 void draw_row_vertical(signed char x, signed char x2, unsigned char y)
@@ -121,8 +139,7 @@ void draw_map_vertical(void)
         draw_row_vertical(x, x, y);
     }
 
-    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, 7, 7); // player square
-    bright_rectangle_attr(PLAYER_SQUARE - 2, PLAYER_SQUARE - 2, 6, 6); // player square bright
+    draw_player();
     copy_attr_buffer();
 }
 
@@ -139,8 +156,7 @@ void draw_map_horizontal(void)
         draw_row_horizontal(x, y);
         draw_row_horizontal(x, y);
     }
-    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, 7, 7); // player square
-    bright_rectangle_attr(PLAYER_SQUARE - 2, PLAYER_SQUARE - 2, 6, 6); // player square bright
+    draw_player();
     copy_attr_buffer();
 }
 
