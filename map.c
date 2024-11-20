@@ -121,7 +121,8 @@ void draw_map_vertical(void)
         draw_row_vertical(x, x, y);
     }
 
-    bright_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2); // player square
+    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, 7, 7); // player square
+    bright_rectangle_attr(PLAYER_SQUARE - 2, PLAYER_SQUARE - 2, 6, 6); // player square bright
     copy_attr_buffer();
 }
 
@@ -138,7 +139,8 @@ void draw_map_horizontal(void)
         draw_row_horizontal(x, y);
         draw_row_horizontal(x, y);
     }
-    bright_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2); // player square
+    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, 7, 7); // player square
+    bright_rectangle_attr(PLAYER_SQUARE - 2, PLAYER_SQUARE - 2, 6, 6); // player square bright
     copy_attr_buffer();
 }
 
