@@ -1,4 +1,4 @@
-MAP_SIZE: equ $10 ; 16
+MAP_SIZE: equ $40 ; 64
 
 SECTION code_user
 
@@ -55,8 +55,8 @@ load_cell_location:
             add hl, hl
             add hl, hl
             add hl, hl
-            ;add hl, hl
-            ;add hl, hl
+            add hl, hl
+            add hl, hl
             add hl, hl; hl = y * MAP_WIDTH(=64)
             add hl, de ; hl = _map + x + (y * MAP_WIDTH)
             ret
