@@ -26,7 +26,7 @@ void loop_around_map(void) // loop around map with 1 tile between player and edg
     // intial position/map
     player_x = MAP_SIZE - 2;
     player_y = 1;
-    draw_map_vertical();
+    draw_map();
     // forward
     fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, "["); // horizontal stripe
     for (player_x = MAP_SIZE - 2; player_x > 1;)
@@ -58,7 +58,7 @@ void main(void)
     print_string("Initialising...");    
     init_map();    
     // try out some fill_rectangle stuff
-    fill_rectangle_char(0, 0, 24, 32, background_pattern1); // repeating background pattern
+    /*fill_rectangle_char(0, 0, 24, 32, background_pattern1); // repeating background pattern
     fill_rectangle_attr(0, 0, 24, 32, 7, 1);
     copy_attr_buffer();
     fill_rectangle_char(0, 0, 24, 32, background_pattern2); // repeating background pattern              
@@ -78,7 +78,7 @@ void main(void)
     copy_attr_buffer();
     fill_rectangle_char(5, 5, 14, 22, "YOU ");
     fill_rectangle_attr(5, 5, 14, 22, 2, 6);
-    copy_attr_buffer();
+    copy_attr_buffer();*/
     fill_rectangle_char(0, 0, 24, 32, " "); // repeating background pattern
     fill_rectangle_attr(0, 0, 24, 32, 0, 7);
     copy_attr_buffer();
