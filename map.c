@@ -28,12 +28,12 @@ static inline unsigned char get_tile(unsigned char x, unsigned char y)
     return 0;
 }
 
-void player_see(void)
+static inline void player_see(unsigned char up, unsigned char down, unsigned char left, unsigned char right)
 {
     // mark area around player as seen
-    for (unsigned char x = player_x + 2; x >= player_x - 2 && x < 255; x--)
+    for (unsigned char x = player_x + down; x >= player_x - up && x < 255; x--)
     {
-        for (unsigned char y = player_y + 2; y >= player_y - 2 && y < 255; y--)
+        for (unsigned char y = player_y + right; y >= player_y - left && y < 255; y--)
         {
             set_map_tile(x, y, get_map_tile(x, y) | 0b00000001);
         }
@@ -173,30 +173,29 @@ void init_map(void)
 
 void draw_map(void)
 {
-    player_see();
+    player_see(2, 2, 2, 2);
     draw_map_vertical();
 }
 
-void move_forward(void)
+void move_up(void)
 {   
-    // animate forward
+    // animate up
     frame_no = 1;
     draw_map_vertical(); 
     frame_no++;
     draw_map_vertical();
     frame_no++;
     draw_map_vertical();
-    player_x--;
-    player_see();
+    player_x--;    
     frame_no = 0;
+    player_see(3, 2, 2, 2);
     draw_map_vertical(); // final position
 }
 
-void move_backward(void)
+void move_down(void)
 {        
-    // animate backward
+    // animate down
     player_x++;
-    player_see();
     frame_no = 3;
     draw_map_vertical();
     frame_no--;
@@ -204,6 +203,7 @@ void move_backward(void)
     frame_no--;
     draw_map_vertical(); 
     frame_no--;
+    player_see(2, 3, 2, 2);
     draw_map_vertical(); // final position
 }
 
@@ -217,8 +217,8 @@ void move_left(void)
     frame_no++;
     draw_map_horizontal(); 
     player_y--;
-    player_see();
     frame_no = 0;
+    player_see(2, 2, 3, 2);
     draw_map_horizontal(); // final position
 }
 
@@ -226,7 +226,6 @@ void move_right(void)
 {   
     // animate right 
     player_y++;
-    player_see();
     frame_no = 3;
     draw_map_horizontal();
     frame_no--;
@@ -234,5 +233,6 @@ void move_right(void)
     frame_no--;
     draw_map_horizontal();
     frame_no--;
+    player_see(2, 2, 2, 3);
     draw_map_horizontal(); // final position
 }

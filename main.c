@@ -31,7 +31,7 @@ void loop_around_map(void) // loop around map with 1 tile between player and edg
     fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, "["); // horizontal stripe
     for (player_x = MAP_SIZE - 2; player_x > 1;)
     {
-        move_forward();
+        move_up();
     }    
     // right
     fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, "\\"); // vertical stripe
@@ -43,7 +43,7 @@ void loop_around_map(void) // loop around map with 1 tile between player and edg
     fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, "["); // horizontal stripe
     for (player_x = 1; player_x < MAP_SIZE - 2;)
     {
-        move_backward();
+        move_down();
     }
     // left
     fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, "\\"); // vertical stripe
