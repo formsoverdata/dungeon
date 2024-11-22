@@ -1,4 +1,5 @@
 MAP_SIZE: equ $40 ; 64
+COMPRESSED_MAP_WIDTH: equ $20 ; half of MAP_SIZE
 
 SECTION code_user
 
@@ -14,27 +15,60 @@ PUBLIC _set_map_tile
 _get_map_tile:
             pop hl ; hl = ret address
             pop bc ; b = x, c = y
-            push hl ; ret address back on stack
-            call load_cell_location
+            push hl
+
+            call load_cell_location            
             ld a, (hl) ; load 8 bit value into a
+            bit $00, c ; is x even?
+            jr z, get_map_tile_even
+            or a ; clear carry so doesn't get rotated into number
+            rra
+            rra
+            rra
+            rra ; rotate the last 4 bits to the first 4
+            jr get_map_tile_end
+get_map_tile_even:
+            and $0f ; blank out the last 4 bits
+get_map_tile_end:
             ld h, $00
-            ld l, a ; hl = tile
+            ld l, a ; hl = grid value
             ret
 
 ;----------
 ; _set_map_tile:
 ; inputs: b = x, c = y, e = tile
-; alters: a, b, de, hl
+; alters: a, bc, de, hl
 ;----------
 _set_map_tile:
             pop hl ; hl = ret address
             pop bc ; b = x, c = y
             pop de
-            push hl ; ret address back on stack
-            push de ; store e=tile
-            call load_cell_location
-            pop de ; restore e=tile
-            ld (hl), e ; load 8 bit value into location
+            ld d, $00 ; de = grid value
+            push hl
+            
+            ld a, e ; a = grid value
+            ex af, af' ; store a
+            call load_cell_location ; load cell location bc into hl
+            ex af, af' ; retrieve a            
+            bit $00, c ; is x even?
+            jr z, set_map_tile_even
+            or a ; clear carry so doesn't get rotated into number
+            rla ; x not even
+            rla
+            rla
+            rla ; rotate the first 4 bits to the last 4
+            ld e, a ; e = given value on rhs
+            ld a, (hl)            
+            and $0f ; a = current lhs value
+            jr set_map_tile_end
+set_map_tile_even: ; x is even
+            and $0f ; blank out the last 4 bits so we don't overwrite
+            ld e, a ; e = given value on lhs
+            ld a, (hl)            
+            and $f0 ; a = current rhs value
+set_map_tile_end:
+            or e ; a = combined given and current value
+            ld (hl), a ; store back in location
             ret
 
 ;----------
@@ -56,11 +90,10 @@ load_cell_location:
             add hl, hl
             add hl, hl
             add hl, hl
-            add hl, hl
-            add hl, hl; hl = y * MAP_WIDTH(=64)
-            add hl, de ; hl = _map + x + (y * MAP_WIDTH)
+            add hl, hl; hl = y * COMPRESSED_MAP_WIDTH(=32)
+            add hl, de ; hl = _map + x + (y * COMPRESSED_MAP_WIDTH)
             ret
 
 SECTION bss_user
 
-_map: ds MAP_SIZE*MAP_SIZE
+_map: ds MAP_SIZE*COMPRESSED_MAP_WIDTH

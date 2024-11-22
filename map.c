@@ -18,17 +18,17 @@ static inline unsigned char get_tile(unsigned char x, unsigned char y)
 {
     if (x < MAP_SIZE && y < MAP_SIZE)
     {
-        unsigned char tile = get_map_tile(x, y);
+        unsigned char tile = get_map_tile(x, y);        
         if (tile & 0b00000001 == 0b00000001) // has tile been seen
         {
-            return tile & 0b00111000; // return colour portion
+            return (tile << 2 & 0b00111000);
         }
     }
 
     return 0;
 }
 
-static inline void player_see(unsigned char up, unsigned char down, unsigned char left, unsigned char right)
+void player_see(unsigned char up, unsigned char down, unsigned char left, unsigned char right)
 {
     // mark area around player as seen
     for (unsigned char x = player_x + down; x >= player_x - up && x < 255; x--)
@@ -166,9 +166,9 @@ void init_map(void)
     {
         for (unsigned char y = MAP_SIZE - 1; y < 255 ; y--)
         {
-            set_map_tile(x, y, (rand() % 7) << 3);
+            set_map_tile(x, y, (rand() % 7) << 1);
         }
-    }    
+    }
 }
 
 void draw_map(void)
