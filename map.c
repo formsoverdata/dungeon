@@ -13,6 +13,7 @@ extern void copy_attr_buffer(void) __z88dk_callee; // copy attribute buffer into
 unsigned char *start_attr_address;
 unsigned char *attr_address;
 unsigned char frame_no;
+unsigned char torch_size = 1;
 
 static inline unsigned char get_tile(unsigned char x, unsigned char y)
 {
@@ -137,7 +138,7 @@ void draw_map_vertical(void)
         draw_row_vertical(x, x, y);
     }
     fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, 7, 7);
-    bright_rectangle_attr(PLAYER_SQUARE - 2, PLAYER_SQUARE - 2, 6, 6);    
+    bright_rectangle_attr(PLAYER_SQUARE - torch_size, PLAYER_SQUARE - torch_size, 2 + torch_size + torch_size, 2 + torch_size + torch_size);
     copy_attr_buffer();
 }
 
@@ -155,7 +156,7 @@ void draw_map_horizontal(void)
         draw_row_horizontal(x, y);
     }
     fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, 7, 7);
-    bright_rectangle_attr(PLAYER_SQUARE - 2, PLAYER_SQUARE - 2, 6, 6);    
+    bright_rectangle_attr(PLAYER_SQUARE - torch_size, PLAYER_SQUARE - torch_size, 2 + torch_size + torch_size, 2 + torch_size + torch_size);
     copy_attr_buffer();
 }
 
@@ -171,6 +172,20 @@ void init_map(void)
     }
 }
 
+static inline void toggle_torch_size(void)
+{
+    switch (torch_size)
+    {
+        default:
+        case 1:
+            torch_size = 2;
+            break;
+        case 2:
+            torch_size = 1;
+            break;
+    }
+}
+
 void draw_map(void)
 {
     player_see(2, 2, 2, 2);
@@ -180,8 +195,8 @@ void draw_map(void)
 void move_up(void)
 {   
     // animate up
-    frame_no = 1;
-    draw_map_vertical(); 
+    frame_no = 1;    
+    draw_map_vertical();
     frame_no++;
     draw_map_vertical();
     frame_no++;
@@ -190,6 +205,7 @@ void move_up(void)
     frame_no = 0;
     player_see(3, 2, 2, 2);
     draw_map_vertical(); // final position
+    toggle_torch_size();
 }
 
 void move_down(void)
@@ -205,6 +221,7 @@ void move_down(void)
     frame_no--;
     player_see(2, 3, 2, 2);
     draw_map_vertical(); // final position
+    toggle_torch_size();
 }
 
 void move_left(void)
@@ -220,6 +237,7 @@ void move_left(void)
     frame_no = 0;
     player_see(2, 2, 3, 2);
     draw_map_horizontal(); // final position
+    toggle_torch_size();
 }
 
 void move_right(void)
@@ -235,4 +253,5 @@ void move_right(void)
     frame_no--;
     player_see(2, 2, 2, 3);
     draw_map_horizontal(); // final position
+    toggle_torch_size();
 }
