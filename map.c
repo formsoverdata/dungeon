@@ -29,7 +29,7 @@ static inline unsigned char get_tile(unsigned char x, unsigned char y)
     return 0;
 }
 
-void player_see(unsigned char up, unsigned char down, unsigned char left, unsigned char right)
+static inline void player_see(unsigned char up, unsigned char down, unsigned char left, unsigned char right)
 {
     // mark area around player as seen
     for (unsigned char x = player_x + down; x >= player_x - up && x < 255; x--)
