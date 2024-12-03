@@ -1,4 +1,4 @@
-MAP_SIZE: equ $40 ; 64
+MAP_SIZE: equ $10 ; 64
 COMPRESSED_MAP_WIDTH: equ $20 ; half of MAP_SIZE
 
 SECTION code_user
@@ -87,8 +87,8 @@ load_cell_location:
             ld e, c ; de = y           
             ex de, hl ; hl = y
             add hl, hl
-            add hl, hl
-            add hl, hl
+            ;add hl, hl
+            ;add hl, hl
             add hl, hl
             add hl, hl; hl = y * COMPRESSED_MAP_WIDTH(=32)
             add hl, de ; hl = _map + x + (y * COMPRESSED_MAP_WIDTH)
