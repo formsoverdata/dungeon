@@ -24,7 +24,7 @@ extern void copy_attr_buffer(void) __z88dk_callee; // copy attribute buffer into
 
 static void inline hide_player(void)
 {
-    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, player_tile, player_tile);
+    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, player_tile_next, player_tile_next);
     bright_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2);
     copy_attr_buffer();
 }
