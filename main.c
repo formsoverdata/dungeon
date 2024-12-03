@@ -19,7 +19,15 @@ extern unsigned char background_pattern1[];
 extern unsigned char background_pattern2[];
 extern void fill_rectangle_char(unsigned char x, unsigned char y, unsigned char height, unsigned char width, unsigned char *c) __z88dk_callee;
 extern void fill_rectangle_attr(unsigned char x, unsigned char y, unsigned char height, unsigned char width, unsigned char ink, unsigned char paper) __z88dk_callee;
+extern void bright_rectangle_attr(unsigned char x, unsigned char y, unsigned char height, unsigned char width) __z88dk_callee;
 extern void copy_attr_buffer(void) __z88dk_callee; // copy attribute buffer into attribute memory
+
+static void inline hide_player(void)
+{
+    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, player_tile, player_tile);
+    bright_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2);
+    copy_attr_buffer();
+}
 
 void loop_around_map(void) // loop around map with 1 tile between player and edge
 {
@@ -28,24 +36,28 @@ void loop_around_map(void) // loop around map with 1 tile between player and edg
     player_y = 1;
     draw_map();
     // forward
+    hide_player();    
     fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, "["); // horizontal stripe
     for (player_x = MAP_SIZE - 2; player_x > 1;)
     {
         move_up();
     }    
     // right
-    fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, "\\"); // vertical stripe
+    hide_player();
+    fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, "\\"); // vertical stripe    
     for (player_y = 1; player_y < MAP_SIZE - 2;)
     {
         move_right();
     }
     // backward
+    hide_player();
     fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, "["); // horizontal stripe
     for (player_x = 1; player_x < MAP_SIZE - 2;)
     {
         move_down();
     }
     // left
+    hide_player();
     fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, "\\"); // vertical stripe
     for (player_y = MAP_SIZE - 2; player_y > 1;)
     {

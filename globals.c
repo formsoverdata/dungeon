@@ -2,6 +2,7 @@
 
 unsigned char player_x;
 unsigned char player_y;
+unsigned char player_tile;
 
 // map integer correspondence to make make definition of map[64][64] more readable
 

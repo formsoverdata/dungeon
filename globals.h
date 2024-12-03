@@ -7,3 +7,4 @@
 
 extern unsigned char player_x;
 extern unsigned char player_y;
+extern unsigned char player_tile;

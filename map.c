@@ -14,6 +14,7 @@ unsigned char *start_attr_address;
 unsigned char *attr_address;
 unsigned char frame_no;
 unsigned char torch_size = 1;
+unsigned char man_frame = 1;
 
 static inline unsigned char get_tile(unsigned char x, unsigned char y)
 {
@@ -137,7 +138,8 @@ void draw_map_vertical(void)
         // catch up row
         draw_row_vertical(x, x, y);
     }
-    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, 7, 7);
+    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 1, 2, player_tile, 6);
+    fill_rectangle_attr(PLAYER_SQUARE + 1, PLAYER_SQUARE, 1, 2, player_tile, 7);
     bright_rectangle_attr(PLAYER_SQUARE - torch_size, PLAYER_SQUARE - torch_size, 2 + torch_size + torch_size, 2 + torch_size + torch_size);
     copy_attr_buffer();
 }
@@ -155,7 +157,8 @@ void draw_map_horizontal(void)
         draw_row_horizontal(x, y);
         draw_row_horizontal(x, y);
     }
-    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, 7, 7);
+    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 1, 2, player_tile, 6);
+    fill_rectangle_attr(PLAYER_SQUARE + 1, PLAYER_SQUARE, 1, 2, player_tile, 7);
     bright_rectangle_attr(PLAYER_SQUARE - torch_size, PLAYER_SQUARE - torch_size, 2 + torch_size + torch_size, 2 + torch_size + torch_size);
     copy_attr_buffer();
 }
@@ -167,8 +170,56 @@ void init_map(void)
     {
         for (unsigned char y = MAP_SIZE - 1; y < 255 ; y--)
         {
-            set_map_tile(x, y, (rand() % 7) << 1);
+            set_map_tile(x, y, (rand() % 6) << 1);
         }
+    }
+}
+
+static inline void draw_man_up(void)
+{        
+    switch (man_frame)
+    {
+        default:
+        case 1:
+            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, "MNQR"); // draw man
+            man_frame = 2;
+            break;
+        case 2:
+            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, "MNUV"); // draw man
+            man_frame = 3;
+            break;
+        case 3:
+            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, "MNQR"); // draw man
+            man_frame = 4;
+            break;
+        case 4:
+            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, "MNYZ"); // draw man
+            man_frame = 1;
+            break;
+    }
+}
+
+static inline void draw_man_down(void)
+{    
+    switch (man_frame)
+    {
+        default:
+        case 1:
+            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, "OPQR"); // draw man
+            man_frame = 2;
+            break;
+        case 2:
+            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, "STUV"); // draw man
+            man_frame = 3;
+            break;
+        case 3:
+            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, "OPQR"); // draw man
+            man_frame = 4;
+            break;
+        case 4:
+            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, "WXYZ"); // draw man
+            man_frame = 1;
+            break;
     }
 }
 
@@ -188,12 +239,17 @@ static inline void toggle_torch_size(void)
 
 void draw_map(void)
 {
+    draw_man_down();
+
     player_see(2, 2, 2, 2);
-    draw_map_vertical();
+    draw_map_vertical();    
 }
 
 void move_up(void)
 {   
+    player_tile = get_tile(player_x - 1, player_y) >> 3;
+    draw_man_up();
+
     // animate up
     frame_no = 1;    
     draw_map_vertical();
@@ -203,13 +259,16 @@ void move_up(void)
     draw_map_vertical();
     player_x--;    
     frame_no = 0;
-    player_see(3, 2, 2, 2);
+    player_see(3, 2, 2, 2);    
     draw_map_vertical(); // final position
     toggle_torch_size();
 }
 
 void move_down(void)
 {        
+    player_tile = get_tile(player_x + 1, player_y) >> 3;
+    draw_man_down();
+
     // animate down
     player_x++;
     frame_no = 3;
@@ -226,6 +285,9 @@ void move_down(void)
 
 void move_left(void)
 {   
+    player_tile = get_tile(player_x, player_y - 1) >> 3;
+    draw_man_down();
+
     // animate left
     frame_no = 1;
     draw_map_horizontal();
@@ -242,6 +304,9 @@ void move_left(void)
 
 void move_right(void)
 {   
+    player_tile = get_tile(player_x, player_y + 1) >> 3;
+    draw_man_down();
+
     // animate right 
     player_y++;
     frame_no = 3;
