@@ -293,8 +293,8 @@ void move_down(void)
     frame_no--;
     draw_map_vertical(); 
     frame_no--;
-    background_1 = player_tile;
-    background_2 = player_tile;
+    background_1 = player_tile_next;
+    background_2 = player_tile_next;
     player_see(2, 3, 2, 2);
     draw_map_vertical(); // final position
     toggle_torch_size();
@@ -316,8 +316,8 @@ void move_left(void)
     draw_map_horizontal(); 
     player_y--;
     frame_no = 0;
-    background_1 = player_tile;
-    background_2 = player_tile;
+    background_1 = player_tile_next;
+    background_2 = player_tile_next;
     player_see(2, 2, 3, 2);
     draw_map_horizontal(); // final position
     toggle_torch_size();
