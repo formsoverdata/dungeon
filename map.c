@@ -164,9 +164,9 @@ void map_draw(void)
 }
 
 void map_move_up(void)
-{       
-    player_draw_up();
-    // animate up
+{   
+    player_draw_up(); 
+    // animate up            
     map_frame = 1;    
     map_draw_vertical();
     player_draw_background_vertical();
@@ -188,11 +188,11 @@ void map_move_up(void)
 }
 
 void map_move_down(void)
-{        
+{   
     player_draw_down();
-    // animate down
-    player_x++;
+    // animate down                 
     map_frame = 3;    
+    player_x++;
     map_draw_vertical();
     player_draw_background_vertical();
     copy_attr_buffer();
@@ -212,10 +212,10 @@ void map_move_down(void)
 }
 
 void map_move_left(void)
-{   
+{       
     player_draw_left();
     // animate left
-    map_frame = 1;    
+    map_frame = 1;        
     map_draw_horizontal();
     player_draw_background_horizontal();
     copy_attr_buffer();
@@ -236,11 +236,11 @@ void map_move_left(void)
 }
 
 void map_move_right(void)
-{   
+{       
     player_draw_right();
-    // animate right 
+    // animate right     
+    map_frame = 3;        
     player_y++;
-    map_frame = 3;    
     map_draw_horizontal();
     player_draw_background_horizontal();
     copy_attr_buffer();

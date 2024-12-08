@@ -84,78 +84,6 @@ static inline unsigned char player_get_tile(unsigned char x, unsigned char y)
     return (get_map_tile(x, y) >> 1 & 0b00000111);
 }
 
-void player_draw_up(void)
-{
-    switch (player_direction)
-    {
-        case 1:
-        case 3:
-            player_hide();    
-            fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, bar_pattern);
-            break;
-    }
-    frame_draw_up();
-    player_direction = 0;
-    player_tile = player_tile_next;
-    player_tile_next = player_get_tile(player_x - 1, player_y);
-    player_background_1 = player_tile;
-    player_background_2 = player_tile_next;
-}
-
-void player_draw_right(void)
-{
-    switch (player_direction)
-    {
-        case 0:
-        case 2:
-            player_hide();    
-            fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, pipe_pattern);
-            break;
-    }
-    frame_draw_down();
-    player_direction = 1;
-    player_tile = player_tile_next;
-    player_tile_next = player_get_tile(player_x, player_y + 1);
-    player_background_1 = player_tile;
-    player_background_2 = player_tile_next;
-}
-
-void player_draw_down(void)
-{
-    switch (player_direction)
-    {
-        case 1:
-        case 3:
-            player_hide();    
-            fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, bar_pattern);
-            break;
-    }
-    frame_draw_down();
-    player_direction = 2;
-    player_tile = player_tile_next;
-    player_tile_next = player_get_tile(player_x + 1, player_y);
-    player_background_1 = player_tile_next;
-    player_background_2 = player_tile;
-}
-
-void player_draw_left(void)
-{
-    switch (player_direction)
-    {
-        case 0:
-        case 2:
-            player_hide();    
-            fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, pipe_pattern);
-            break;
-    }
-    frame_draw_down();
-    player_direction = 3;
-    player_tile = player_tile_next;
-    player_tile_next = player_get_tile(player_x, player_y - 1);
-    player_background_1 = player_tile_next;
-    player_background_2 = player_tile;
-}
-
 void player_draw_background_vertical(void)
 {
     fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 1, 2, player_background_2, 6);
@@ -170,6 +98,106 @@ void player_draw_background_horizontal(void)
     fill_rectangle_attr(PLAYER_SQUARE + 1, PLAYER_SQUARE, 1, 1, player_background_1, 7);
     fill_rectangle_attr(PLAYER_SQUARE + 1, PLAYER_SQUARE + 1, 1, 1, player_background_2, 7);
     bright_rectangle_attr(PLAYER_SQUARE - player_torch_size, PLAYER_SQUARE - player_torch_size, 2 + player_torch_size + player_torch_size, 2 + player_torch_size + player_torch_size);
+}
+
+void player_draw_up(void)
+{    
+    player_tile = player_tile_next;
+    player_tile_next = player_get_tile(player_x - 1, player_y);
+    player_background_1 = player_tile;
+    player_background_2 = player_tile_next;
+    switch (player_direction)
+    {
+        case 0:
+        case 2:        
+            frame_draw_up();
+            break;
+        case 1:
+        case 3:
+            // change direction - hide player, switch between bars and pipes, draw then show player
+            player_hide();    
+            fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, bar_pattern);
+            frame_draw_up();
+            player_draw_background_vertical();
+            copy_attr_buffer();
+            break;
+    }    
+    player_direction = 0;
+}
+
+void player_draw_right(void)
+{
+    player_tile = player_tile_next;
+    player_tile_next = player_get_tile(player_x, player_y + 1);
+    player_background_1 = player_tile;
+    player_background_2 = player_tile_next;
+    switch (player_direction)
+    {
+        case 0:
+        case 2:
+            // change direction - hide player, switch between bars and pipes, draw then show player
+            player_hide();    
+            fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, pipe_pattern);
+            frame_draw_down();
+            player_draw_background_horizontal();
+            copy_attr_buffer();
+            break;
+        case 1:
+        case 3:
+            frame_draw_down();
+            break;
+    }    
+    player_direction = 1;    
+}
+
+void player_draw_down(void)
+{
+    player_tile = player_tile_next;
+    player_tile_next = player_get_tile(player_x + 1, player_y);
+    player_background_1 = player_tile_next;
+    player_background_2 = player_tile;
+    switch (player_direction)
+    {
+        case 0:
+        case 2:
+            frame_draw_down();
+            break;
+        case 1:
+        case 3:
+            // change direction - hide player, switch between bars and pipes, draw then show player
+            player_hide();    
+            fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, bar_pattern);
+            frame_draw_down();
+            player_draw_background_vertical();
+            copy_attr_buffer();
+            break;
+    }    
+    player_direction = 2;    
+}
+
+void player_draw_left(void)
+{
+    player_tile = player_tile_next;
+    player_tile_next = player_get_tile(player_x, player_y - 1);
+    player_background_1 = player_tile_next;
+    player_background_2 = player_tile;
+    switch (player_direction)
+    {
+        case 0:
+        case 2:
+            // change direction - hide player, switch between bars and pipes, draw then show player
+            player_hide();    
+            fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, pipe_pattern);
+            frame_draw_down();
+            player_draw_background_horizontal();
+            copy_attr_buffer();
+            break;
+        case 1:
+        case 3:
+            frame_draw_down();
+            break;
+    }    
+    player_direction = 3;    
 }
 
 void player_see(unsigned char up, unsigned char down, unsigned char left, unsigned char right)
