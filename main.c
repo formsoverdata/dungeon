@@ -15,68 +15,45 @@ SECTION bss_user: assign zero initial data to this section
 extern void print_string(uint8_t *string) __z88dk_fastcall; // print null terminated string, accepts rst $10 control codes
 
 // imported from fill_rectangle.asm
-extern unsigned char background_pattern1[];
-extern unsigned char background_pattern2[];
 extern void fill_rectangle_char(unsigned char x, unsigned char y, unsigned char height, unsigned char width, unsigned char *c) __z88dk_callee;
 extern void fill_rectangle_attr(unsigned char x, unsigned char y, unsigned char height, unsigned char width, unsigned char ink, unsigned char paper) __z88dk_callee;
 extern void bright_rectangle_attr(unsigned char x, unsigned char y, unsigned char height, unsigned char width) __z88dk_callee;
 extern void copy_attr_buffer(void) __z88dk_callee; // copy attribute buffer into attribute memory
-
-static void inline hide_player(void)
-{
-    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, player_tile_next, player_tile_next);
-    bright_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2);
-    copy_attr_buffer();
-}
 
 void loop_around_map(void) // loop around map with 1 tile between player and edge
 {
     // intial position/map
     player_x = MAP_SIZE - 2;
     player_y = 1;
-    draw_map();
-    // forward
-    hide_player();    
-    fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, "["); // horizontal stripe
+    map_draw();
+    // forward    
     for (player_x = MAP_SIZE - 2; player_x > 1;)
     {
-        move_up();
+        map_move_up();
     }    
-    // right
-    hide_player();
-    fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, "\\"); // vertical stripe    
+    // right    
     for (player_y = 1; player_y < MAP_SIZE - 2;)
     {
-        move_right();
+        map_move_right();
     }
-    // backward
-    hide_player();
-    fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, "["); // horizontal stripe
+    // backward    
     for (player_x = 1; player_x < MAP_SIZE - 2;)
     {
-        move_down();
+        map_move_down();
     }
-    // left
-    hide_player();
-    fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, "\\"); // vertical stripe
+    // left    
     for (player_y = MAP_SIZE - 2; player_y > 1;)
     {
-        move_left();
+        map_move_left();
     }
 }
 
 void main(void)
 {       
     print_string("Initialising...");    
-    init_map();    
+    map_init();    
     // try out some fill_rectangle stuff
-    /*fill_rectangle_char(0, 0, 24, 32, background_pattern1); // repeating background pattern
-    fill_rectangle_attr(0, 0, 24, 32, 7, 1);
-    copy_attr_buffer();
-    fill_rectangle_char(0, 0, 24, 32, background_pattern2); // repeating background pattern              
-    fill_rectangle_attr(0, 0, 24, 32, 2, 4);
-    copy_attr_buffer();
-    fill_rectangle_char(1, 1, 22, 30, "HELLO "); // can also enter text directly
+    /*fill_rectangle_char(1, 1, 22, 30, "HELLO "); // can also enter text directly
     fill_rectangle_attr(1, 1, 22, 30, 6, 2);
     copy_attr_buffer();
     fill_rectangle_char(2, 2, 20, 28, "THERE ");

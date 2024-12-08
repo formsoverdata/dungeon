@@ -188,12 +188,31 @@ _copy_attr_buffer:
             ret
 
 SECTION rodata_user
-PUBLIC _background_pattern1
-PUBLIC _background_pattern2
-_background_pattern1: ; example of how we could build up a repeating background
-defb "@ABCDEFGHIJKLMNOPQRSTUVWZYX[", $00
-_background_pattern2:
-defb "QWOINEIOUWEQPOKCEUIBWECXIUY@", $00
+PUBLIC _man_up_pattern1
+PUBLIC _man_up_pattern2
+PUBLIC _man_up_pattern3
+PUBLIC _man_down_pattern1
+PUBLIC _man_down_pattern2
+PUBLIC _man_down_pattern3
+PUBLIC _pipe_pattern
+PUBLIC _bar_pattern
+_man_up_pattern1:
+defb "MNQR", $00
+_man_up_pattern2:
+defb "MNUV", $00
+_man_up_pattern3:
+defb "MNYZ", $00
+_man_down_pattern1:
+defb "OPQR", $00
+_man_down_pattern2:
+defb "STUV", $00
+_man_down_pattern3:
+defb "WXYZ", $00
+_pipe_pattern:
+defb "\\", $00
+_bar_pattern:
+defb "[", $00
+
 udgs: ; currently just a font, but can use for graphics
 defb 0,0,0,0,0,0,0,0 ; @ - space
 defb 126,129,189,189,129,189,165,231 ; A

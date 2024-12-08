@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "globals.h"
+#include "player.h"
 
 // imported from map.asm
 extern unsigned char get_map_tile(unsigned char x, unsigned char y) __z88dk_callee;
@@ -13,10 +14,6 @@ extern void copy_attr_buffer(void) __z88dk_callee; // copy attribute buffer into
 unsigned char *start_attr_address;
 unsigned char *attr_address;
 unsigned char frame_no;
-unsigned char torch_size = 1;
-unsigned char man_frame = 1;
-unsigned char background_1;
-unsigned char background_2;
 
 static inline unsigned char get_tile(unsigned char x, unsigned char y)
 {
@@ -30,18 +27,6 @@ static inline unsigned char get_tile(unsigned char x, unsigned char y)
     }
 
     return 0;
-}
-
-static inline void player_see(unsigned char up, unsigned char down, unsigned char left, unsigned char right)
-{
-    // mark area around player as seen
-    for (unsigned char x = player_x + down; x >= player_x - up && x < 255; x--)
-    {
-        for (unsigned char y = player_y + right; y >= player_y - left && y < 255; y--)
-        {
-            set_map_tile(x, y, get_map_tile(x, y) | 0b00000001);
-        }
-    }
 }
 
 void draw_row_vertical(signed char x, signed char x2, unsigned char y)
@@ -141,10 +126,7 @@ void draw_map_vertical(void)
         draw_row_vertical(x, x, y);
     }
 
-    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 1, 2, background_2, 6);
-    fill_rectangle_attr(PLAYER_SQUARE + 1, PLAYER_SQUARE, 1, 2, background_1, 7);
-    bright_rectangle_attr(PLAYER_SQUARE - torch_size, PLAYER_SQUARE - torch_size, 2 + torch_size + torch_size, 2 + torch_size + torch_size);
-    copy_attr_buffer();
+    player_draw_background_vertical();    
 }
 
 void draw_map_horizontal(void)
@@ -161,15 +143,10 @@ void draw_map_horizontal(void)
         draw_row_horizontal(x, y);
     }
 
-    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 1, 1, background_1, 6);
-    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE + 1, 1, 1, background_2, 6);
-    fill_rectangle_attr(PLAYER_SQUARE + 1, PLAYER_SQUARE, 1, 1, background_1, 7);
-    fill_rectangle_attr(PLAYER_SQUARE + 1, PLAYER_SQUARE + 1, 1, 1, background_2, 7);
-    bright_rectangle_attr(PLAYER_SQUARE - torch_size, PLAYER_SQUARE - torch_size, 2 + torch_size + torch_size, 2 + torch_size + torch_size);
-    copy_attr_buffer();
+    player_draw_background_horizontal();
 }
 
-void init_map(void)
+void map_init(void)
 {
     start_attr_address = (unsigned char*)(ATTR_BUFF); // start of map attribute memory
     for (unsigned char x = MAP_SIZE - 1; x < 255; x--)
@@ -181,88 +158,18 @@ void init_map(void)
     }
 }
 
-static inline void draw_man_up(void)
-{        
-    switch (man_frame)
-    {
-        default:
-        case 1:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, "MNQR"); // draw man
-            man_frame = 2;
-            break;
-        case 2:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, "MNUV"); // draw man
-            man_frame = 3;
-            break;
-        case 3:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, "MNQR"); // draw man
-            man_frame = 4;
-            break;
-        case 4:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, "MNYZ"); // draw man
-            man_frame = 1;
-            break;
-    }
-}
-
-static inline void draw_man_down(void)
-{    
-    switch (man_frame)
-    {
-        default:
-        case 1:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, "OPQR"); // draw man
-            man_frame = 2;
-            break;
-        case 2:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, "STUV"); // draw man
-            man_frame = 3;
-            break;
-        case 3:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, "OPQR"); // draw man
-            man_frame = 4;
-            break;
-        case 4:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, "WXYZ"); // draw man
-            man_frame = 1;
-            break;
-    }
-}
-
-static inline void toggle_torch_size(void)
+void map_draw(void)
 {
-    switch (torch_size)
-    {
-        default:
-        case 1:
-            torch_size = 2;
-            break;
-        case 2:
-            torch_size = 1;
-            break;
-    }
-}
-
-void draw_map(void)
-{
-    player_tile = get_tile(player_x, player_y) >> 3;
-    player_tile_next = player_tile;
-    background_1 = player_tile;
-    background_2 = player_tile_next;
-    draw_man_down();
+    player_draw_down();
     player_see(2, 2, 2, 2);
     draw_map_vertical();
 }
 
-void move_up(void)
-{   
-    player_tile = player_tile_next;
-    player_tile_next = get_tile(player_x - 1, player_y) >> 3;    
-    draw_man_up();
+void map_move_up(void)
+{       
+    player_draw_up();
     // animate up
-    frame_no = 1;
-    background_1 = player_tile;
-    background_2 = player_tile_next;
+    frame_no = 1;    
     draw_map_vertical();
     frame_no++;
     draw_map_vertical();
@@ -270,45 +177,31 @@ void move_up(void)
     draw_map_vertical();
     player_x--;    
     frame_no = 0;
-    background_1 = player_tile_next;
-    background_2 = player_tile_next;
     player_see(3, 2, 2, 2);
     draw_map_vertical(); // final position
-    toggle_torch_size();
 }
 
-void move_down(void)
+void map_move_down(void)
 {        
-    player_tile = player_tile_next;
-    player_tile_next = get_tile(player_x + 1, player_y) >> 3;    
-    draw_man_down();
+    player_draw_down();
     // animate down
     player_x++;
-    frame_no = 3;
-    background_1 = player_tile_next;
-    background_2 = player_tile;
+    frame_no = 3;    
     draw_map_vertical();
     frame_no--;
     draw_map_vertical();
     frame_no--;
     draw_map_vertical(); 
     frame_no--;
-    background_1 = player_tile_next;
-    background_2 = player_tile_next;
     player_see(2, 3, 2, 2);
-    draw_map_vertical(); // final position
-    toggle_torch_size();
+    draw_map_vertical(); // final position    
 }
 
-void move_left(void)
+void map_move_left(void)
 {   
-    player_tile = player_tile_next;
-    player_tile_next = get_tile(player_x, player_y - 1) >> 3;    
-    draw_man_down();
+    player_draw_left();
     // animate left
-    frame_no = 1;
-    background_1 = player_tile_next;
-    background_2 = player_tile;
+    frame_no = 1;    
     draw_map_horizontal();
     frame_no++;
     draw_map_horizontal();
@@ -316,32 +209,22 @@ void move_left(void)
     draw_map_horizontal(); 
     player_y--;
     frame_no = 0;
-    background_1 = player_tile_next;
-    background_2 = player_tile_next;
     player_see(2, 2, 3, 2);
     draw_map_horizontal(); // final position
-    toggle_torch_size();
 }
 
-void move_right(void)
+void map_move_right(void)
 {   
-    player_tile = player_tile_next;
-    player_tile_next = get_tile(player_x, player_y + 1) >> 3;    
-    draw_man_down();
+    player_draw_right();
     // animate right 
     player_y++;
-    frame_no = 3;
-    background_1 = player_tile;
-    background_2 = player_tile_next;
+    frame_no = 3;    
     draw_map_horizontal();
     frame_no--;
     draw_map_horizontal();
     frame_no--;
     draw_map_horizontal();
     frame_no--;
-    background_1 = player_tile_next;
-    background_2 = player_tile_next;
     player_see(2, 2, 2, 3);
     draw_map_horizontal(); // final position
-    toggle_torch_size();
 }

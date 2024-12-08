@@ -2,5 +2,6 @@ fill_rectangle.asm
 screen.asm
 map.asm
 globals.c
+player.c
 map.c
 main.c
