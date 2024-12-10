@@ -90,7 +90,6 @@ void player_draw_up(void)
                 fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, BAR_PATTERN);
                 break;
         }
-        copy_attr_buffer();
         player_direction = DIR_UP;
     }
     player_tile = player_tile_next;
@@ -114,7 +113,6 @@ void player_draw_right(void)
                 fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, PIPE_PATTERN);
                 break;
         }
-        copy_attr_buffer();
         player_direction = DIR_RIGHT;
     }
     player_tile = player_tile_next;
@@ -138,7 +136,6 @@ void player_draw_down(void)
                 fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, BAR_PATTERN);
                 break;
         }
-        copy_attr_buffer();
         player_direction = DIR_DOWN;
     }
     player_tile = player_tile_next;
@@ -162,7 +159,6 @@ void player_draw_left(void)
                 fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, PIPE_PATTERN);
                 break;
         }
-        copy_attr_buffer();
         player_direction = DIR_LEFT;
     }
     player_tile = player_tile_next;
