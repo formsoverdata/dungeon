@@ -154,15 +154,6 @@ void map_init(void)
     }
 }
 
-void map_draw(void)
-{
-    player_draw_down();
-    player_see(2, 2, 2, 2);
-    map_draw_vertical();
-    player_draw_background_vertical();
-    copy_attr_buffer();
-}
-
 void map_move_up(void)
 {   
     player_draw_up(); 

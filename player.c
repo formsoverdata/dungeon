@@ -1,17 +1,18 @@
 #include "globals.h"
 
+#define MAN_UP_PATTERN1 "MNQR"
+#define MAN_UP_PATTERN2 "MNUV"
+#define MAN_UP_PATTERN3 "MNYZ"
+#define MAN_DOWN_PATTERN1 "OPQR"
+#define MAN_DOWN_PATTERN2 "STUV"
+#define MAN_DOWN_PATTERN3 "WXYZ"
+#define PIPE_PATTERN "\\"
+#define BAR_PATTERN "["
+
 // imported from map.asm
 extern unsigned char get_map_tile(unsigned char x, unsigned char y) __z88dk_callee;
 extern void set_map_tile(unsigned char x, unsigned char y, unsigned int tile)  __z88dk_callee;
 // imported from fill_rectangle.asm
-extern unsigned char pipe_pattern[];
-extern unsigned char bar_pattern[];
-extern unsigned char man_up_pattern1[];
-extern unsigned char man_up_pattern2[];
-extern unsigned char man_up_pattern3[];
-extern unsigned char man_down_pattern1[];
-extern unsigned char man_down_pattern2[];
-extern unsigned char man_down_pattern3[];
 extern void fill_rectangle_char(unsigned char x, unsigned char y, unsigned char height, unsigned char width, unsigned char *c) __z88dk_callee;
 extern void fill_rectangle_attr(unsigned char x, unsigned char y, unsigned char height, unsigned char width, unsigned char ink, unsigned char paper) __z88dk_callee;
 extern void bright_rectangle_attr(unsigned char x, unsigned char y, unsigned char height, unsigned char width) __z88dk_callee;
@@ -29,21 +30,18 @@ static inline void frame_draw_up(void)
     {
         default:
         case 1:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, man_up_pattern1); // draw man
-            player_frame = 2;
+        case 3:
+            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_UP_PATTERN1); // draw man
+            player_frame++;
             break;
         case 2:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, man_up_pattern2); // draw man
-            player_frame = 3;
-            break;
-        case 3:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, man_up_pattern1); // draw man
-            player_frame = 4;
+            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_UP_PATTERN2); // draw man
+            player_frame++;
             break;
         case 4:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, man_up_pattern3); // draw man
+            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_UP_PATTERN3); // draw man
             player_frame = 1;
-            break;
+            break;        
     }
 }
 
@@ -53,29 +51,19 @@ static inline void frame_draw_down(void)
     {
         default:
         case 1:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, man_down_pattern1); // draw man
-            player_frame = 2;
+        case 3:
+            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_DOWN_PATTERN1); // draw man
+            player_frame++;
             break;
         case 2:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, man_down_pattern2); // draw man
-            player_frame = 3;
-            break;
-        case 3:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, man_down_pattern1); // draw man
-            player_frame = 4;
+            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_DOWN_PATTERN2); // draw man
+            player_frame++;
             break;
         case 4:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, man_down_pattern3); // draw man
+            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_DOWN_PATTERN3); // draw man
             player_frame = 1;
             break;
     }
-}
-
-static void inline player_hide(void)
-{
-    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, player_tile_next, player_tile_next);
-    bright_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2);
-    copy_attr_buffer();
 }
 
 static inline unsigned char player_get_tile(unsigned char x, unsigned char y)
@@ -100,104 +88,69 @@ void player_draw_background_horizontal(void)
     bright_rectangle_attr(PLAYER_SQUARE - player_torch_size, PLAYER_SQUARE - player_torch_size, 2 + player_torch_size + player_torch_size, 2 + player_torch_size + player_torch_size);
 }
 
+static inline void change_direction(unsigned char new_direction)
+{
+    if (new_direction == player_direction)
+    {
+        return;
+    }
+
+    fill_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, player_tile_next, player_tile_next);
+    bright_rectangle_attr(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2);
+    copy_attr_buffer();
+    switch (new_direction)
+    {
+        case 0:
+        case 2:            
+            fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, BAR_PATTERN);
+            break;
+        case 1:
+        case 3:
+            fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, PIPE_PATTERN);            
+            break;
+    }
+    copy_attr_buffer();
+    player_direction = new_direction;
+}
+
 void player_draw_up(void)
 {    
+    change_direction(0);
     player_tile = player_tile_next;
     player_tile_next = player_get_tile(player_x - 1, player_y);
     player_background_1 = player_tile;
     player_background_2 = player_tile_next;
-    switch (player_direction)
-    {
-        case 0:
-        case 2:        
-            frame_draw_up();
-            break;
-        case 1:
-        case 3:
-            // change direction - hide player, switch between bars and pipes, draw then show player
-            player_hide();    
-            fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, bar_pattern);
-            frame_draw_up();
-            player_draw_background_vertical();
-            copy_attr_buffer();
-            break;
-    }    
-    player_direction = 0;
+    frame_draw_up();
 }
 
 void player_draw_right(void)
 {
+    change_direction(1);
     player_tile = player_tile_next;
     player_tile_next = player_get_tile(player_x, player_y + 1);
     player_background_1 = player_tile;
-    player_background_2 = player_tile_next;
-    switch (player_direction)
-    {
-        case 0:
-        case 2:
-            // change direction - hide player, switch between bars and pipes, draw then show player
-            player_hide();    
-            fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, pipe_pattern);
-            frame_draw_down();
-            player_draw_background_horizontal();
-            copy_attr_buffer();
-            break;
-        case 1:
-        case 3:
-            frame_draw_down();
-            break;
-    }    
-    player_direction = 1;    
+    player_background_2 = player_tile_next;    
+    frame_draw_down();
 }
 
 void player_draw_down(void)
 {
+    change_direction(2);
     player_tile = player_tile_next;
     player_tile_next = player_get_tile(player_x + 1, player_y);
     player_background_1 = player_tile_next;
-    player_background_2 = player_tile;
-    switch (player_direction)
-    {
-        case 0:
-        case 2:
-            frame_draw_down();
-            break;
-        case 1:
-        case 3:
-            // change direction - hide player, switch between bars and pipes, draw then show player
-            player_hide();    
-            fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, bar_pattern);
-            frame_draw_down();
-            player_draw_background_vertical();
-            copy_attr_buffer();
-            break;
-    }    
-    player_direction = 2;    
+    player_background_2 = player_tile;    
+    frame_draw_down();
 }
 
 void player_draw_left(void)
 {
+    change_direction(3);
     player_tile = player_tile_next;
     player_tile_next = player_get_tile(player_x, player_y - 1);
     player_background_1 = player_tile_next;
-    player_background_2 = player_tile;
-    switch (player_direction)
-    {
-        case 0:
-        case 2:
-            // change direction - hide player, switch between bars and pipes, draw then show player
-            player_hide();    
-            fill_rectangle_char(0, 0, VISIBLE_AREA, VISIBLE_AREA, pipe_pattern);
-            frame_draw_down();
-            player_draw_background_horizontal();
-            copy_attr_buffer();
-            break;
-        case 1:
-        case 3:
-            frame_draw_down();
-            break;
-    }    
-    player_direction = 3;    
+    player_background_2 = player_tile;    
+    frame_draw_down();
 }
 
 void player_see(unsigned char up, unsigned char down, unsigned char left, unsigned char right)

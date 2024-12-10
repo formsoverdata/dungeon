@@ -9,6 +9,27 @@ PUBLIC _fill_rectangle_attr
 PUBLIC _bright_rectangle_attr
 PUBLIC _copy_attr_buffer
 
+
+;----------
+; BEGIN - get_char_address (inline) - adapted from a routine by Dean Belfield
+; inputs: d = y, e = x
+; outputs: hl = location of screen address
+;----------
+get_char_address:
+            ld a,e
+            and $07
+            rra
+            rra
+            rra
+            rra
+            or d
+            ld l,a
+            ld a,e
+            and $18
+            or $40
+            ld h,a
+            ret
+            
 ;----------
 ; _fill_rectangle_char
 ; inputs: d = y, e = x, h = width, l = height, ix = address of first char (accepts strings and repeats full string)
@@ -27,24 +48,7 @@ _fill_rectangle_char_loop1:
             push hl ; store width/height
             push bc ; store counter 1
             ld b, h ; set counter 2 to width
-            ;----------
-            ; BEGIN - get_char_address (inline) - adapted from a routine by Dean Belfield
-            ; inputs: d = y, e = x
-            ; outputs: hl = location of screen address
-            ;----------
-            ld a,e
-            and $07
-            rra
-            rra
-            rra
-            rra
-            or d
-            ld l,a
-            ld a,e
-            and $18
-            or $40
-            ld h,a
-            ; END
+            call get_char_address
 _fill_rectangle_char_loop2:                                    
             push hl ; store hl = screen address
             push bc ; store counter 2
@@ -188,32 +192,7 @@ _copy_attr_buffer:
             ret
 
 SECTION rodata_user
-PUBLIC _man_up_pattern1
-PUBLIC _man_up_pattern2
-PUBLIC _man_up_pattern3
-PUBLIC _man_down_pattern1
-PUBLIC _man_down_pattern2
-PUBLIC _man_down_pattern3
-PUBLIC _pipe_pattern
-PUBLIC _bar_pattern
-_man_up_pattern1:
-defb "MNQR", $00
-_man_up_pattern2:
-defb "MNUV", $00
-_man_up_pattern3:
-defb "MNYZ", $00
-_man_down_pattern1:
-defb "OPQR", $00
-_man_down_pattern2:
-defb "STUV", $00
-_man_down_pattern3:
-defb "WXYZ", $00
-_pipe_pattern:
-defb "\\", $00
-_bar_pattern:
-defb "[", $00
-
-udgs: ; currently just a font, but can use for graphics
+udgs: 
 defb 0,0,0,0,0,0,0,0 ; @ - space
 defb 126,129,189,189,129,189,165,231 ; A
 defb 254,131,189,131,189,189,129,254 ; B
