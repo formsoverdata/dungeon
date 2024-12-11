@@ -1,23 +1,27 @@
 #include "globals.h"
 
-#define MAN_UP_PATTERN1 "KLUV"
-#define MAN_UP_PATTERN2 "KLWX"
-#define MAN_UP_PATTERN3 "KLYZ"
-#define MAN_DOWN_PATTERN1 "MNUV"
-#define MAN_DOWN_PATTERN2 "MNWX"
-#define MAN_DOWN_PATTERN3 "MNYZ"
-#define MAN_LEFT_PATTERN1 "MLOP"
-#define MAN_LEFT_PATTERN2 "MLST"
-#define MAN_LEFT_PATTERN3 "MLQR"
-#define MAN_RIGHT_PATTERN1 "KNOP"
-#define MAN_RIGHT_PATTERN2 "KNQR"
-#define MAN_RIGHT_PATTERN3 "KNST"
+#define MAN_UP_HEAD "KL"
+#define MAN_UP_BODY1 "UV"
+#define MAN_UP_BODY2 "WX"
+#define MAN_UP_BODY3 "YZ"
+#define MAN_DOWN_HEAD "MN"
+#define MAN_DOWN_BODY1 "UV"
+#define MAN_DOWN_BODY2 "WX"
+#define MAN_DOWN_BODY3 "YZ"
+#define MAN_LEFT_HEAD "ML"
+#define MAN_LEFT_BODY1 "OP"
+#define MAN_LEFT_BODY2 "ST"
+#define MAN_LEFT_BODY3 "QR"
+#define MAN_RIGHT_HEAD "KN"
+#define MAN_RIGHT_BODY1 "OP"
+#define MAN_RIGHT_BODY2 "QR"
+#define MAN_RIGHT_BODY3 "ST"
 #define PIPE_PATTERN "\\"
 #define BAR_PATTERN "["
-#define DIR_UP 0
-#define DIR_LEFT 1
-#define DIR_DOWN 2
-#define DIR_RIGHT 3
+#define DIR_UP 1
+#define DIR_LEFT 2
+#define DIR_DOWN 3
+#define DIR_RIGHT 4
 
 // imported from map.asm
 extern unsigned char get_map_tile(unsigned char x, unsigned char y) __z88dk_callee;
@@ -29,7 +33,7 @@ extern void bright_rectangle_attr(unsigned char x, unsigned char y, unsigned cha
 extern void copy_attr_buffer(void) __z88dk_callee; // copy attribute buffer into attribute memory
 
 unsigned char player_frame = 1;
-unsigned char player_direction = 0; // 0:up;1:right;2:down;3:left
+unsigned char player_direction = 0; // 1:up;2:right;3:down;4:left
 unsigned char player_background_1;
 unsigned char player_background_2;
 unsigned char player_torch_size = 1;
@@ -41,15 +45,15 @@ static inline void frame_draw_up(void)
         default:
         case 1:
         case 3:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_UP_PATTERN1); // draw man
+            fill_rectangle_char(PLAYER_SQUARE + 1, PLAYER_SQUARE, 1, 2, MAN_UP_BODY1); // draw man
             player_frame++;
             break;
         case 2:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_UP_PATTERN2); // draw man
+            fill_rectangle_char(PLAYER_SQUARE + 1, PLAYER_SQUARE, 1, 2, MAN_UP_BODY2); // draw man
             player_frame++;
             break;
         case 4:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_UP_PATTERN3); // draw man
+            fill_rectangle_char(PLAYER_SQUARE + 1, PLAYER_SQUARE, 1, 2, MAN_UP_BODY3); // draw man
             player_frame = 1;
             break;        
     }
@@ -62,15 +66,15 @@ static inline void frame_draw_down(void)
         default:
         case 1:
         case 3:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_DOWN_PATTERN1); // draw man
+            fill_rectangle_char(PLAYER_SQUARE + 1, PLAYER_SQUARE, 1, 2, MAN_DOWN_BODY1); // draw man
             player_frame++;
             break;
         case 2:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_DOWN_PATTERN2); // draw man
+            fill_rectangle_char(PLAYER_SQUARE + 1, PLAYER_SQUARE, 1, 2, MAN_DOWN_BODY2); // draw man
             player_frame++;
             break;
         case 4:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_DOWN_PATTERN3); // draw man
+            fill_rectangle_char(PLAYER_SQUARE + 1, PLAYER_SQUARE, 1, 2, MAN_DOWN_BODY3); // draw man
             player_frame = 1;
             break;
     }
@@ -83,15 +87,15 @@ static inline void frame_draw_left(void)
         default:
         case 1:
         case 3:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_LEFT_PATTERN1); // draw man
+            fill_rectangle_char(PLAYER_SQUARE + 1, PLAYER_SQUARE, 1, 2, MAN_LEFT_BODY1); // draw man
             player_frame++;
             break;
         case 2:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_LEFT_PATTERN2); // draw man
+            fill_rectangle_char(PLAYER_SQUARE + 1, PLAYER_SQUARE, 1, 2, MAN_LEFT_BODY2); // draw man
             player_frame++;
             break;
         case 4:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_LEFT_PATTERN3); // draw man
+            fill_rectangle_char(PLAYER_SQUARE + 1, PLAYER_SQUARE, 1, 2, MAN_LEFT_BODY3); // draw man
             player_frame = 1;
             break;
     }
@@ -104,15 +108,15 @@ static inline void frame_draw_right(void)
         default:
         case 1:
         case 3:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_RIGHT_PATTERN1); // draw man
+            fill_rectangle_char(PLAYER_SQUARE + 1, PLAYER_SQUARE, 1, 2, MAN_RIGHT_BODY1); // draw man
             player_frame++;
             break;
         case 2:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_RIGHT_PATTERN2); // draw man
+            fill_rectangle_char(PLAYER_SQUARE + 1, PLAYER_SQUARE, 1, 2, MAN_RIGHT_BODY2); // draw man
             player_frame++;
             break;
         case 4:
-            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_RIGHT_PATTERN3); // draw man
+            fill_rectangle_char(PLAYER_SQUARE + 1, PLAYER_SQUARE, 1, 2, MAN_RIGHT_BODY3); // draw man
             player_frame = 1;
             break;
     }
@@ -139,6 +143,7 @@ void player_draw_up(void)
                 break;
         }
         player_direction = DIR_UP;
+        fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 1, 2, MAN_UP_HEAD);
     }
     player_tile = player_tile_next;
     player_tile_next = player_get_tile(player_x - 1, player_y);
@@ -162,6 +167,7 @@ void player_draw_right(void)
                 break;
         }
         player_direction = DIR_RIGHT;
+        fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 1, 2, MAN_RIGHT_HEAD);
     }
     player_tile = player_tile_next;
     player_tile_next = player_get_tile(player_x, player_y + 1);
@@ -185,6 +191,7 @@ void player_draw_down(void)
                 break;
         }
         player_direction = DIR_DOWN;
+        fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 1, 2, MAN_DOWN_HEAD);
     }
     player_tile = player_tile_next;
     player_tile_next = player_get_tile(player_x + 1, player_y);
@@ -208,6 +215,7 @@ void player_draw_left(void)
                 break;
         }
         player_direction = DIR_LEFT;
+        fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 1, 2, MAN_LEFT_HEAD);
     }
     player_tile = player_tile_next;
     player_tile_next = player_get_tile(player_x, player_y - 1);
