@@ -235,23 +235,23 @@ defb @11111011 ; O - man right bottom left 1
 defb @11110010
 defb @11110010
 defb @11111010
+defb @11111110
 defb @11111111
-defb @11111100
-defb @11110000
+defb @11111000
 defb @11111111
 defb @11011111 ; P - man right bottom right 1
 defb @01001111
 defb @01001111
 defb @01011111
-defb @11111111
 defb @01111111
-defb @00001111
+defb @11111111
+defb @00011111
 defb @11111111
 defb @11111111 ; Q - man right bottom left 2
 defb @11111100
 defb @11111100
 defb @11111100
-defb @11110111
+defb @11110100
 defb @11110111
 defb @11110100
 defb @11111111
@@ -260,7 +260,7 @@ defb @10001111
 defb @10001111
 defb @10011111
 defb @11111111
-defb @00011111
+defb @10011111
 defb @00000111
 defb @11111111
 defb @11111011 ; S - man right bottom left 3
@@ -268,14 +268,14 @@ defb @11110001
 defb @11110001
 defb @11111001
 defb @11111111
-defb @11111000
+defb @11111001
 defb @11100000
 defb @11111111
 defb @11111111 ; T - man right bottom right 3
 defb @00111111
 defb @00111111
 defb @00111111
-defb @11101111
+defb @00101111
 defb @11101111
 defb @00101111
 defb @11111111
