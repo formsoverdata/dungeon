@@ -199,73 +199,103 @@ defb 126,195,189,191,177,189,195,126 ; G
 defb 231,165,189,129,189,165,165,231 ; H
 defb 127,65,119,20,20,119,65,127 ; I
 defb 7,5,5,229,165,189,195,126 ; J
-defb 238,186,182,140,182,187,173,231 ; K
-defb 224,160,160,160,160,191,129,255 ; L
-defb @11111111 ; M - man up top left 1
+defb @11111111 ; K - man up top left 1
 defb @11111100
 defb @11111000
-defb @11110000
+defb @11111000
 defb @11110000
 defb @11110000
 defb @11111000
 defb @11111100
-defb @11111111 ; N - man up top right 1
+defb @11111111 ; L - man up top right 1
 defb @00111111
 defb @00011111
-defb @00001111
+defb @00011111
 defb @00001111
 defb @00001111
 defb @00011111
 defb @00111111
-defb @11111111 ; O - man down top left 1
+defb @11111111 ; M - man down top left 1
 defb @11111100
 defb @11111000
-defb @11110000
+defb @11111000
 defb @11110010
 defb @11110010
 defb @11111000
 defb @11111100
-defb @11111111 ; P - man down top right 1
+defb @11111111 ; N - man down top right 1
 defb @00111111
 defb @00011111
-defb @00001111
+defb @00011111
 defb @01001111
 defb @01001111
 defb @00011111
 defb @00111111
-defb @11101111 ; Q - man down bottom left 1
-defb @11011011
-defb @10010000
-defb @10010000
-defb @11111000
+defb @11111011 ; O - man right bottom left 1
+defb @11110010
+defb @11110010
+defb @11111010
 defb @11111111
-defb @11110001
-defb @11111111
-defb @11110111 ; R - man down bottom right 1
-defb @11011011
-defb @00001001
-defb @00001001
-defb @00011111
-defb @11111111
-defb @10001111
-defb @11111111
-defb @11111111 ; S - man down top left 2
 defb @11111100
-defb @11111000
 defb @11110000
-defb @11110100
-defb @11110100
-defb @11111000
-defb @11111100
-defb @11111111 ; T - man down top right 2
-defb @00111111
-defb @00011111
+defb @11111111
+defb @11011111 ; P - man right bottom right 1
+defb @01001111
+defb @01001111
+defb @01011111
+defb @11111111
+defb @01111111
 defb @00001111
+defb @11111111
+defb @11111111 ; Q - man right bottom left 2
+defb @11111100
+defb @11111100
+defb @11111100
+defb @11110111
+defb @11110111
+defb @11110100
+defb @11111111
+defb @11011111 ; R - man right bottom right 2
 defb @10001111
 defb @10001111
+defb @10011111
+defb @11111111
 defb @00011111
+defb @00000111
+defb @11111111
+defb @11111011 ; S - man right bottom left 3
+defb @11110001
+defb @11110001
+defb @11111001
+defb @11111111
+defb @11111000
+defb @11100000
+defb @11111111
+defb @11111111 ; T - man right bottom right 3
 defb @00111111
-defb @11101111 ; U - man down bottom left 2
+defb @00111111
+defb @00111111
+defb @11101111
+defb @11101111
+defb @00101111
+defb @11111111
+defb @11101111 ; U - man down bottom left 1
+defb @11011011
+defb @10010000
+defb @10010000
+defb @11111000
+defb @11111111
+defb @11110001
+defb @11111111
+defb @11110111 ; V - man down bottom right 1
+defb @11011011
+defb @00001001
+defb @00001001
+defb @00011111
+defb @11111111
+defb @10001111
+defb @11111111
+defb @11101111 ; W - man down bottom left 2
 defb @11011011
 defb @10010000
 defb @10010000
@@ -273,7 +303,7 @@ defb @11111000
 defb @11111111
 defb @11111111
 defb @11111111
-defb @11110111 ; V - man down bottom right 2
+defb @11110111 ; X - man down bottom right 2
 defb @11011011
 defb @00001001
 defb @00001001
@@ -281,22 +311,6 @@ defb @00011111
 defb @11111111
 defb @00001111
 defb @11111111
-defb @11111111 ; W - man down top left 3
-defb @11111100
-defb @11111000
-defb @11110000
-defb @11110001
-defb @11110001
-defb @11111000
-defb @11111100
-defb @11111111 ; X - man down top right 3
-defb @00111111
-defb @00011111
-defb @00001111
-defb @00101111
-defb @00101111
-defb @00011111
-defb @00111111
 defb @11101111 ; Y - man down bottom left 3
 defb @11011011
 defb @10010000

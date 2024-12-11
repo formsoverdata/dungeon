@@ -1,11 +1,17 @@
 #include "globals.h"
 
-#define MAN_UP_PATTERN1 "MNQR"
-#define MAN_UP_PATTERN2 "MNUV"
-#define MAN_UP_PATTERN3 "MNYZ"
-#define MAN_DOWN_PATTERN1 "OPQR"
-#define MAN_DOWN_PATTERN2 "STUV"
-#define MAN_DOWN_PATTERN3 "WXYZ"
+#define MAN_UP_PATTERN1 "KLUV"
+#define MAN_UP_PATTERN2 "KLWX"
+#define MAN_UP_PATTERN3 "KLYZ"
+#define MAN_DOWN_PATTERN1 "MNUV"
+#define MAN_DOWN_PATTERN2 "MNWX"
+#define MAN_DOWN_PATTERN3 "MNYZ"
+#define MAN_LEFT_PATTERN1 "MLOP"
+#define MAN_LEFT_PATTERN2 "MLST"
+#define MAN_LEFT_PATTERN3 "MLQR"
+#define MAN_RIGHT_PATTERN1 "KNOP"
+#define MAN_RIGHT_PATTERN2 "KNQR"
+#define MAN_RIGHT_PATTERN3 "KNST"
 #define PIPE_PATTERN "\\"
 #define BAR_PATTERN "["
 #define DIR_UP 0
@@ -70,6 +76,48 @@ static inline void frame_draw_down(void)
     }
 }
 
+static inline void frame_draw_left(void)
+{    
+    switch (player_frame)
+    {
+        default:
+        case 1:
+        case 3:
+            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_LEFT_PATTERN1); // draw man
+            player_frame++;
+            break;
+        case 2:
+            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_LEFT_PATTERN2); // draw man
+            player_frame++;
+            break;
+        case 4:
+            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_LEFT_PATTERN3); // draw man
+            player_frame = 1;
+            break;
+    }
+}
+
+static inline void frame_draw_right(void)
+{    
+    switch (player_frame)
+    {
+        default:
+        case 1:
+        case 3:
+            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_RIGHT_PATTERN1); // draw man
+            player_frame++;
+            break;
+        case 2:
+            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_RIGHT_PATTERN2); // draw man
+            player_frame++;
+            break;
+        case 4:
+            fill_rectangle_char(PLAYER_SQUARE, PLAYER_SQUARE, 2, 2, MAN_RIGHT_PATTERN3); // draw man
+            player_frame = 1;
+            break;
+    }
+}
+
 static inline unsigned char player_get_tile(unsigned char x, unsigned char y)
 {
     // no need to check if seen but rotate to last 3 (background)
@@ -119,7 +167,7 @@ void player_draw_right(void)
     player_tile_next = player_get_tile(player_x, player_y + 1);
     player_background_1 = player_tile;
     player_background_2 = player_tile_next;    
-    frame_draw_down();
+    frame_draw_right();
 }
 
 void player_draw_down(void)
@@ -165,7 +213,7 @@ void player_draw_left(void)
     player_tile_next = player_get_tile(player_x, player_y - 1);
     player_background_1 = player_tile_next;
     player_background_2 = player_tile;
-    frame_draw_down();
+    frame_draw_left();
 }
 
 void player_draw_background_vertical(void)
