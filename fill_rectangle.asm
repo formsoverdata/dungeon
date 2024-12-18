@@ -305,16 +305,16 @@ defb @11111111
 defb @11111111
 defb @11110111 ; X - man down bottom right 2
 defb @11011011
-defb @00001001
-defb @00001001
+defb @00001011
+defb @00001011
 defb @00011111
 defb @11111111
 defb @00001111
 defb @11111111
 defb @11101111 ; Y - man down bottom left 3
 defb @11011011
-defb @10010000
-defb @10010000
+defb @11010000
+defb @11010000
 defb @11111000
 defb @11111111
 defb @11110000
