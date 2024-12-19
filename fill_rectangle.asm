@@ -297,8 +297,8 @@ defb @10001111
 defb @11111111
 defb @11101111 ; W - man down bottom left 2
 defb @11011011
-defb @10001000
-defb @10001000
+defb @11001000
+defb @11001000
 defb @11111000
 defb @11111111
 defb @11111111
@@ -321,8 +321,8 @@ defb @11110000
 defb @11111111
 defb @11110111 ; Z - man down bottom right 3
 defb @11011011
-defb @00010001
-defb @00010001
+defb @00010011
+defb @00010011
 defb @00011111
 defb @11111111
 defb @11111111
